@@ -200,7 +200,7 @@
         },
 
         async analyze() {
-          if (!API_URL || API_URL === "วาง_URL_ที่ก๊อปมาตรงนี้") {
+          if (!API_URL || API_URL === "https://script.google.com/macros/s/AKfycbzphIfLGfk0EBeGpaMLkGwY1oM4-lxOoH0mZjckg7I7xg9KkSN_FLVFU6U3MixTNlW2/exec") {
             this.showToast('คุณยังไม่ได้ใส่ API URL ในโค้ด', '❌'); return;
           }
           if (!this.form.inputNumbers) { this.showToast('กรุณากรอกเลข', '⚠️'); return; }

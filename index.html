@@ -13,6 +13,7 @@
     body { font-family: 'Kanit', sans-serif; background: #f0f4f8; overflow-x: hidden; }
     .glass { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px); }
     [x-cloak] { display: none !important; }
+    .scrollbar-hide::-webkit-scrollbar { display: none; }
     @keyframes slideUp { from { transform: translateY(100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
     .toast-enter { animation: slideUp 0.3s ease-out forwards; }
   </style>
@@ -118,7 +119,7 @@
       <div class="glass p-5 rounded-3xl shadow-sm border border-white">
         <div class="flex justify-between items-center mb-4">
           <h2 class="font-bold text-slate-700">🔢 ควบคุมเลข 0-9</h2>
-          <button @click="form.numStates = {}; showToast('รีเซ็ตล็อคเลขทั้งหมดแล้ว', '✅')" class="text-[10px] bg-slate-100 text-slate-500 px-3 py-1 rounded-full hover:bg-slate-200 transition-colors">รีเซ็ต</button>
+          <button @click="resetNumStates()" class="text-[10px] bg-slate-100 text-slate-500 px-3 py-1 rounded-full hover:bg-slate-200 transition-colors">รีเซ็ต</button>
         </div>
         <div class="grid grid-cols-5 gap-2">
           <template x-for="i in [0,1,2,3,4,5,6,7,8,9]">
@@ -194,8 +195,8 @@
   </main>
 
   <script>
-    // 🔗 API URL ของคุณ (อัปเดตแล้ว)
-    const API_URL = "https://script.google.com/macros/s/AKfycbzphIfLGfk0EBeGpaMLkGwY1oM4-lxOoH0mZjckg7I7xg9KkSN_FLVFU6U3MixTNlW2/exec";
+    // ⚠️⚠️ วาง URL ของ Google Apps Script ของคุณตรงนี้ ⚠️⚠️
+    const API_URL = "วาง_URL_ที่ก๊อปมาตรงนี้";
     
     function lottoApp() {
       return {
@@ -215,11 +216,11 @@
           lotteryType: 'รัฐบาลไทย',
           inputNumbers: '',
           engineMode: 'A',
-          numStates: {} // {0: 'force', 1: 'ban', ...}
+          // ✅ FIX: กำหนดโครงสร้างตัวแปรให้ครบเพื่อให้ปุ่มเปลี่ยนสีได้ทันที
+          numStates: { '0':'normal', '1':'normal', '2':'normal', '3':'normal', '4':'normal', '5':'normal', '6':'normal', '7':'normal', '8':'normal', '9':'normal' }
         },
 
         initApp() {
-          // โหลดประวัติครั้งแรก
           this.fetchHistory();
         },
 
@@ -229,18 +230,26 @@
           if (t === 'สถิติ') this.renderCharts();
         },
 
+        // ✅ ฟังก์ชันล็อค/แบน
         toggleState(i) {
-          const current = this.form.numStates[i] || 'normal';
+          const current = this.form.numStates[i];
           if (current === 'normal') this.form.numStates[i] = 'force';
           else if (current === 'force') this.form.numStates[i] = 'ban';
           else this.form.numStates[i] = 'normal';
         },
 
+        // ✅ ฟังก์ชันดึงสีของปุ่ม
         getStateClass(i) {
-          const state = this.form.numStates[i] || 'normal';
-          if (state === 'force') return 'bg-green-50 border-green-500 text-green-700 ring-2 ring-green-100';
-          if (state === 'ban') return 'bg-rose-50 border-rose-500 text-rose-700 opacity-40';
+          const state = this.form.numStates[i];
+          if (state === 'force') return 'bg-green-50 border-green-500 text-green-700 ring-2 ring-green-100 shadow-inner';
+          if (state === 'ban') return 'bg-rose-50 border-rose-500 text-rose-700 opacity-50 shadow-inner';
           return 'bg-white border-slate-100 text-slate-600 hover:border-green-200';
+        },
+
+        // ✅ ฟังก์ชันรีเซ็ตปุ่ม
+        resetNumStates() {
+           this.form.numStates = { '0':'normal', '1':'normal', '2':'normal', '3':'normal', '4':'normal', '5':'normal', '6':'normal', '7':'normal', '8':'normal', '9':'normal' };
+           this.showToast('รีเซ็ตล็อคเลขทั้งหมดแล้ว', '✅');
         },
 
         showToast(msg, icon = '🔔') {
@@ -256,13 +265,10 @@
           });
         },
 
-        // --- API CALLS ---
-        
         async fetchHistory() {
           if (!API_URL || API_URL.includes("วาง_URL")) return;
           this.loadingHistory = true;
           try {
-            // เรียกผ่าน GET สำหรับประวัติ
             const response = await fetch(`${API_URL}?action=getHistory`);
             const data = await response.json();
             this.history = data;
@@ -274,6 +280,10 @@
         },
 
         async analyze() {
+          if (!API_URL || API_URL.includes("วาง_URL")) {
+            this.showToast('กรุณาใส่ API_URL ในโค้ดด้วยครับ', '❌');
+            return;
+          }
           if (!this.form.inputNumbers) {
             this.showToast('กรุณากรอกเลขงวดล่าสุดก่อนครับ', '⚠️');
             return;
@@ -283,7 +293,6 @@
           this.result = null;
           
           try {
-            // เรียกผ่าน POST สำหรับวิเคราะห์
             const response = await fetch(API_URL, {
               method: 'POST',
               headers: { "Content-Type": "text/plain;charset=utf-8" },
@@ -296,7 +305,7 @@
             const data = await response.json();
             this.result = data;
             this.showToast(data.message, '✅');
-            this.fetchHistory(); // อัปเดตประวัติเบื้องหลัง
+            this.fetchHistory(); 
             
           } catch (error) {
             this.showToast('เชื่อมต่อล้มเหลว ตรวจสอบการตั้งค่า API', '❌');
@@ -306,8 +315,6 @@
           }
         },
 
-        // --- CHARTING ---
-        
         renderCharts() {
           if (this.chartsRendered) return;
           this.chartsRendered = true;
@@ -319,39 +326,41 @@
               plugins: { legend: { display: false } }
             };
 
-            // กราฟแท่ง (Engine)
-            const ctx1 = document.getElementById('engineChart').getContext('2d');
-            new Chart(ctx1, {
-              type: 'bar',
-              data: {
-                labels: ['โหมด A', 'โหมด B', 'โหมด C'],
-                datasets: [{
-                  data: [78, 92, 65], // ข้อมูลจำลอง
-                  backgroundColor: ['#34d399', '#3b82f6', '#fb923c'],
-                  borderRadius: 10
-                }]
-              },
-              options: chartConfig
-            });
+            const ctx1 = document.getElementById('engineChart');
+            if (ctx1) {
+              new Chart(ctx1.getContext('2d'), {
+                type: 'bar',
+                data: {
+                  labels: ['โหมด A', 'โหมด B', 'โหมด C'],
+                  datasets: [{
+                    data: [78, 92, 65], 
+                    backgroundColor: ['#34d399', '#3b82f6', '#fb923c'],
+                    borderRadius: 10
+                  }]
+                },
+                options: chartConfig
+              });
+            }
 
-            // กราฟวงกลม (Formulas)
-            const ctx2 = document.getElementById('formulaChart').getContext('2d');
-            new Chart(ctx2, {
-              type: 'doughnut',
-              data: {
-                labels: ['บวกคงที่', 'คูณทะลวง', 'บวกไขว้', 'เลขเงา'],
-                datasets: [{
-                  data: [35, 20, 40, 5],
-                  backgroundColor: ['#10b981', '#3b82f6', '#f59e0b', '#ec4899'],
-                  borderWidth: 0
-                }]
-              },
-              options: {
-                ...chartConfig,
-                plugins: { legend: { display: true, position: 'bottom', labels: { boxWidth: 10, font: { size: 10 } } } },
-                cutout: '75%'
-              }
-            });
+            const ctx2 = document.getElementById('formulaChart');
+            if (ctx2) {
+              new Chart(ctx2.getContext('2d'), {
+                type: 'doughnut',
+                data: {
+                  labels: ['บวกคงที่', 'คูณทะลวง', 'บวกไขว้', 'เลขเงา'],
+                  datasets: [{
+                    data: [35, 20, 40, 5],
+                    backgroundColor: ['#10b981', '#3b82f6', '#f59e0b', '#ec4899'],
+                    borderWidth: 0
+                  }]
+                },
+                options: {
+                  ...chartConfig,
+                  plugins: { legend: { display: true, position: 'bottom', labels: { boxWidth: 10, font: { size: 10 } } } },
+                  cutout: '75%'
+                }
+              });
+            }
           }, 100);
         }
       }

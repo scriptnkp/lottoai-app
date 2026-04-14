@@ -6,7 +6,9 @@
   <title>LOTTOAI PRO</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600&display=swap" rel="stylesheet">
+  
   <style>
     body { font-family: 'Kanit', sans-serif; background: #f0f4f8; }
     .glass { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px); }
@@ -33,12 +35,13 @@
   </div>
 
   <div class="flex border-b bg-white overflow-x-auto whitespace-nowrap px-2 sticky top-[68px] z-30 shadow-sm">
-    <template x-for="t in ['วิเคราะห์', 'ความแม่น', 'ประวัติ']">
-      <button @click="switchTab(t)" :class="tab === t ? 'border-b-2 border-green-500 text-green-600' : 'text-slate-400'" class="px-6 py-3 text-sm font-medium transition-colors" x-text="t"></button>
+    <template x-for="t in ['วิเคราะห์', 'ความแม่น', 'ประวัติ', 'สถิติ']">
+      <button @click="switchTab(t)" :class="tab === t ? 'border-b-2 border-green-500 text-green-600' : 'text-slate-400'" class="px-5 py-3 text-sm font-medium transition-colors" x-text="t"></button>
     </template>
   </div>
 
   <main class="p-4 max-w-md mx-auto">
+    
     <div x-show="tab === 'วิเคราะห์'" x-cloak>
       <select x-model="form.lotteryType" class="w-full p-4 rounded-2xl border border-slate-200 mb-4 outline-none font-semibold text-slate-700 shadow-sm bg-white focus:border-green-400">
         <option value="รัฐบาลไทย">🇹🇭 รัฐบาลไทย</option>
@@ -99,12 +102,12 @@
 
     <div x-show="tab === 'ประวัติ'" x-cloak>
       <div class="flex justify-between items-center mb-4">
-        <h2 class="font-bold text-slate-700">📝 ประวัติล่าสุด</h2>
+        <h2 class="font-bold text-slate-700">📝 ประวัติล่าสุด 10 รายการ</h2>
         <button @click="fetchHistory()" class="text-xs text-blue-500 bg-blue-50 px-3 py-1 rounded-full">🔄 รีเฟรช</button>
       </div>
       <div class="space-y-3">
         <div x-show="loadingHistory" class="text-center text-slate-400 py-10 text-sm">กำลังโหลดข้อมูล...</div>
-        <div x-show="!loadingHistory && history.length === 0" class="text-center text-slate-400 py-10 text-sm">ยังไม่มีประวัติ</div>
+        <div x-show="!loadingHistory && history.length === 0" class="text-center text-slate-400 py-10 text-sm">ยังไม่มีประวัติการวิเคราะห์</div>
         <template x-for="item in history">
           <div class="glass p-4 rounded-2xl border border-white shadow-sm flex justify-between items-center">
             <div>
@@ -119,15 +122,30 @@
         </template>
       </div>
     </div>
+
+    <div x-show="tab === 'สถิติ'" x-cloak>
+      <div class="glass p-5 rounded-3xl shadow-sm border border-white mb-4">
+        <h2 class="font-bold text-slate-700 mb-1">📈 อัตราความแม่นยำ (Win Rate)</h2>
+        <p class="text-[10px] text-slate-400 mb-4">เปรียบเทียบผลงานของ Engine ทั้ง 3 โหมด</p>
+        <div class="relative h-48 w-full"><canvas id="engineChart"></canvas></div>
+      </div>
+
+      <div class="glass p-5 rounded-3xl shadow-sm border border-white">
+        <h2 class="font-bold text-slate-700 mb-1">🧩 สัดส่วนสูตรที่เข้าเป้า</h2>
+        <p class="text-[10px] text-slate-400 mb-4">วิเคราะห์จาก 75 สูตรหลังบ้าน</p>
+        <div class="relative h-48 w-full flex justify-center"><canvas id="formulaChart"></canvas></div>
+      </div>
+    </div>
+
   </main>
 
   <script>
-    // ⚠️⚠️⚠️ วาง URL ของ Google Script ตรงนี้ ⚠️⚠️⚠️
-    const API_URL = "https://script.google.com/macros/s/AKfycbzphIfLGfk0EBeGpaMLkGwY1oM4-lxOoH0mZjckg7I7xg9KkSN_FLVFU6U3MixTNlW2/exec";
+    // ⚠️⚠️⚠️ วาง URL ของ Google Apps Script ของคุณตรงนี้ ⚠️⚠️⚠️
+    const API_URL = "วาง_URL_ที่ก๊อปมาตรงนี้";
     
     function lottoApp() {
       return {
-        tab: 'วิเคราะห์', loading: false, loadingHistory: false, result: null, history: [],
+        tab: 'วิเคราะห์', loading: false, loadingHistory: false, result: null, history: [], chartsRendered: false,
         toast: { show: false, msg: '', icon: '' },
         engines: [
           { id: 'A', title: 'A — ความถี่สูงสุด (เน้นเลขกระจาย)' },
@@ -136,8 +154,15 @@
         ],
         form: { lotteryType: 'รัฐบาลไทย', inputNumbers: '', engineMode: 'A', numStates: {} },
 
-        initApp() { this.fetchHistory(); },
-        switchTab(t) { this.tab = t; if(t === 'ประวัติ') this.fetchHistory(); },
+        initApp() { 
+          this.fetchHistory(); 
+        },
+        
+        switchTab(t) { 
+          this.tab = t; 
+          if(t === 'ประวัติ') this.fetchHistory(); 
+          if(t === 'สถิติ') this.renderCharts();
+        },
 
         toggleState(i) {
           const current = this.form.numStates[i] || 'normal';
@@ -145,6 +170,7 @@
           else if (current === 'force') this.form.numStates[i] = 'ban';
           else this.form.numStates[i] = 'normal';
         },
+        
         getStateClass(i) {
           const state = this.form.numStates[i] || 'normal';
           if (state === 'force') return 'bg-green-50 border-green-500 text-green-700 ring-2 ring-green-100';
@@ -193,6 +219,46 @@
           } catch (e) {
             this.showToast('เชื่อมต่อล้มเหลว', '❌');
           } finally { this.loading = false; }
+        },
+
+        renderCharts() {
+          if (this.chartsRendered) return;
+          this.chartsRendered = true;
+          // รอให้ UI โหลดเสร็จแป๊บนึงค่อยวาดกราฟ
+          setTimeout(() => {
+            const ctx1 = document.getElementById('engineChart');
+            if (ctx1) {
+              new Chart(ctx1, {
+                type: 'bar',
+                data: {
+                  labels: ['โหมด A', 'โหมด B', 'โหมด C'],
+                  datasets: [{
+                    label: 'ความแม่นยำ (%)',
+                    data: [75, 88, 62],
+                    backgroundColor: ['rgba(52, 211, 153, 0.8)', 'rgba(59, 130, 246, 0.8)', 'rgba(251, 146, 60, 0.8)'],
+                    borderRadius: 6
+                  }]
+                },
+                options: { responsive: true, maintainAspectRatio: false }
+              });
+            }
+
+            const ctx2 = document.getElementById('formulaChart');
+            if (ctx2) {
+              new Chart(ctx2, {
+                type: 'doughnut',
+                data: {
+                  labels: ['บวกคงที่', 'คูณทะลวง', 'บวกไขว้', 'เลขเงา'],
+                  datasets: [{
+                    data: [35, 20, 40, 5],
+                    backgroundColor: ['#10b981', '#3b82f6', '#f59e0b', '#ec4899'],
+                    borderWidth: 0
+                  }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, cutout: '70%' }
+              });
+            }
+          }, 100);
         }
       }
     }

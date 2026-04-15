@@ -81,6 +81,17 @@
       </div>
     </header>
 
+    <nav class="flex overflow-x-auto px-4 py-3 sticky top-[65px] z-30 scrollbar-hide bg-gradient-to-b from-[#eefcf6] to-transparent backdrop-blur-sm">
+      <div class="flex gap-2 bg-white/60 p-1.5 rounded-2xl w-max border border-white shadow-sm">
+        <template x-for="t in ['สถิติ', 'ตรวจสลาก', 'วิเคราะห์', 'ความแม่น', 'ทำนายฝัน', 'ประวัติ']">
+          <button @click="switchTab(t)" 
+                  :class="tab === t ? 'bg-emerald-500 text-white shadow-md font-bold scale-100' : 'text-slate-500 hover:text-slate-700 scale-95'" 
+                  class="px-5 py-2 text-sm rounded-xl transition-all duration-200 ease-out whitespace-nowrap" 
+                  x-text="t"></button>
+        </template>
+      </div>
+    </nav>
+
     <main class="p-4 max-w-md mx-auto w-full flex-1">
       
       <div x-show="tab === 'สถิติ'" x-cloak x-transition.opacity.duration.300ms class="h-full flex flex-col gap-5">
@@ -183,50 +194,56 @@
           } return dates;
         },
 
-        // ✅ ฟังก์ชันตรวจสลาก ฉบับ "ดื้อแค่ไหนก็ดึงได้" (Smart Fallback API)
+        // ✅ ฟังก์ชันตรวจสลากสมบูรณ์แบบ
         async verifyLottoReal() {
           if(this.checkLottoNumber.length !== 6) return this.showToast('กรุณากรอกเลขให้ครบ 6 หลัก', '⚠️');
           this.checkLottoLoading = true; this.checkLottoResult = null;
           
           try {
             let data = null;
-            // 💡 ลองทั้งแบบมีเลข 0 ข้างหน้าและไม่มีเลข 0 (เช่น '01042569' กับ '1042569') ป้องกัน API งง
             let datesToTry = this.selectedLottoDate === 'latest' ? ['latest'] : [this.selectedLottoDate, this.selectedLottoDate.replace(/^0/, '')];
             
-            // 1. ลองยิงตรงเข้ากองสลากก่อน
             for (let d of datesToTry) {
                let endpoint = d === 'latest' ? 'https://lotto.api.rayriffy.com/latest' : `https://lotto.api.rayriffy.com/lotto/${d}`;
                try {
                  let res = await fetch(endpoint);
                  let json = await res.json();
                  if (json.status === "success" || json.status === "ok") { data = json; break; }
-               } catch(e) {}
+               } catch(e) { console.log("ยิงตรงล้มเหลว", e); }
             }
 
-            // 2. ถ้า Safari บล็อก หรือ API ตรงไม่ตอบสนอง ให้ยิงผ่าน Code.gs ที่หลังบ้านแทน!
             if (!data && API_URL && !API_URL.includes("วาง_URL")) {
                for (let d of datesToTry) {
                  try {
-                   let proxyRes = await fetch(API_URL, { method: 'POST', headers: {"Content-Type": "text/plain;charset=utf-8"}, body: JSON.stringify({ action: 'checkLotto', date: d }) });
-                   let proxyData = await proxyRes.json();
+                   let proxyRes = await fetch(API_URL, { 
+                     method: 'POST', 
+                     redirect: "follow",
+                     headers: {"Content-Type": "text/plain;charset=utf-8"}, 
+                     body: JSON.stringify({ action: 'checkLotto', date: d }) 
+                   });
+                   let responseText = await proxyRes.text();
+                   if(responseText.includes("<html")) throw new Error("GAS_NOT_UPDATED");
+                   let proxyData = JSON.parse(responseText);
                    if(proxyData.response && (proxyData.status === "success" || proxyData.status === "ok")) { data = proxyData; break; }
-                 } catch(e) {}
+                 } catch(e) { 
+                   if(e.message === "GAS_NOT_UPDATED") {
+                     this.showToast('กรุณา New Deploy ใน Google Script ครับ!', '⚠️');
+                     this.checkLottoLoading = false;
+                     return;
+                   }
+                 }
                }
             }
 
-            // 3. ก๊อกสุดท้าย ถ้าหาข้อมูลวันที่นั้นไม่เจอจริงๆ ให้ดึง "งวดล่าสุด" มาแทน
             if (!data || data.status === "error") {
                 try {
                   let latestRes = await fetch('https://lotto.api.rayriffy.com/latest');
                   data = await latestRes.json();
-                  this.showToast('ข้อมูลวันที่ระบุยังไม่อัปเดต แสดงผลงวดล่าสุดแทน', 'ℹ️');
-                } catch(e) {}
+                  this.showToast('แสดงผลงวดล่าสุดแทน เนื่องจากไม่พบข้อมูล', 'ℹ️');
+                } catch(e) { throw new Error("API_DOWN"); }
             }
 
-            // ถ้าทุกทางล้มเหลวแบบสนิท
-            if(!data || !data.response || data.status === "error") {
-               return this.showToast('เซิร์ฟเวอร์กองสลากไม่ตอบสนอง', '❌');
-            }
+            if(!data || !data.response || data.status === "error") throw new Error("API_DOWN");
 
             const lottoData = data.response; 
             const checkNum = this.checkLottoNumber; 
@@ -253,7 +270,11 @@
               this.checkLottoResult = { icon: '😢', title: 'เสียใจด้วย', message: 'สลากของคุณไม่ถูกรางวัล', reward: '0', isWin: false, date: lottoData.date }; 
             }
           } catch(e) { 
-             this.showToast('การเชื่อมต่อล้มเหลว', '❌'); 
+             if(e.message === "API_DOWN") {
+               this.showToast('เซิร์ฟเวอร์กองสลากไม่ตอบสนอง', '❌'); 
+             } else {
+               this.showToast('การเชื่อมต่อล้มเหลว', '🔌'); 
+             }
           } finally { 
              this.checkLottoLoading = false; 
           }

@@ -4,16 +4,17 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>LOTTOAI PRO - Official Version</title>
+  
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#10b981">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="LOTTOAI">
+
   <script src="https://cdn.tailwindcss.com"></script>
   <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600&display=swap" rel="stylesheet">
-  
-  <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#10b981"> <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="default">
-  <meta name="apple-mobile-web-app-title" content="LOTTOAI">
-  <link rel="apple-touch-icon" href="icon.png">
   
   <style>
     body { font-family: 'Kanit', sans-serif; background: #f0f4f8; overflow-x: hidden; }
@@ -80,7 +81,7 @@
             กำลังคำนวณ...
           </span>
         </button>
-        <button @click="form.inputNumbers = ''; result = null" class="bg-white text-slate-400 px-6 py-4 rounded-2xl font-bold shadow-sm border border-slate-100 hover:bg-slate-50 transition-colors">ลบ</button>
+        <button @click="form.inputNumbers = ''; result = null; combos = {two:[], three:[]}" class="bg-white text-slate-400 px-6 py-4 rounded-2xl font-bold shadow-sm border border-slate-100 hover:bg-slate-50 transition-colors">ลบ</button>
       </div>
 
       <div x-show="result" x-transition class="bg-gradient-to-br from-green-50 to-emerald-100 border border-green-200 p-6 rounded-3xl relative overflow-hidden shadow-sm">
@@ -97,6 +98,27 @@
           </template>
         </div>
       </div>
+
+      <div x-show="result" x-transition class="mt-4 grid grid-cols-2 gap-3">
+        <div class="glass p-4 rounded-3xl shadow-sm border border-white">
+          <h3 class="text-xs font-bold text-slate-700 mb-3 flex items-center gap-1">✌️ ชุด 2 ตัว (บน-ล่าง)</h3>
+          <div class="flex flex-wrap gap-1.5">
+            <template x-for="c in combos.two">
+              <span class="text-[11px] font-bold text-slate-600 bg-white border border-slate-200 px-2.5 py-1 rounded-lg shadow-sm" x-text="c"></span>
+            </template>
+          </div>
+        </div>
+        
+        <div class="glass p-4 rounded-3xl shadow-sm border border-white">
+          <h3 class="text-xs font-bold text-slate-700 mb-3 flex items-center gap-1">🤟 ชุด 3 ตัว (เต็ง-โต๊ด)</h3>
+          <div class="flex flex-wrap gap-1.5">
+            <template x-for="c in combos.three">
+              <span class="text-[11px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-100 px-2.5 py-1 rounded-lg shadow-sm" x-text="c"></span>
+            </template>
+          </div>
+        </div>
+      </div>
+
     </div>
 
     <div x-show="tab === 'ความแม่น'" x-cloak x-transition>
@@ -213,6 +235,7 @@
         history: [],
         chartsRendered: false,
         toast: { show: false, msg: '', icon: '' },
+        combos: { two: [], three: [] }, // ✅ ตัวแปรเก็บชุดตัวเลข
         engines: [
           { id: 'A', title: 'A — ความถี่สูงสุด', desc: 'เน้นนับจำนวนครั้งที่เลขติด Top 5 จากทุกสูตร' },
           { id: 'B', title: 'B — ลำดับคะแนน', desc: 'ให้คะแนนตามอันดับ 1-5 รวมผลเพื่อความสมดุล' },
@@ -222,13 +245,10 @@
           lotteryType: 'รัฐบาลไทย',
           inputNumbers: '',
           engineMode: 'A',
-          // ✅ FIX: กำหนดโครงสร้างตัวแปรให้ครบเพื่อให้ปุ่มเปลี่ยนสีได้ทันที
           numStates: { '0':'normal', '1':'normal', '2':'normal', '3':'normal', '4':'normal', '5':'normal', '6':'normal', '7':'normal', '8':'normal', '9':'normal' }
         },
 
-        initApp() {
-          this.fetchHistory();
-        },
+        initApp() { this.fetchHistory(); },
 
         switchTab(t) {
           this.tab = t;
@@ -236,7 +256,6 @@
           if (t === 'สถิติ') this.renderCharts();
         },
 
-        // ✅ ฟังก์ชันล็อค/แบน
         toggleState(i) {
           const current = this.form.numStates[i];
           if (current === 'normal') this.form.numStates[i] = 'force';
@@ -244,7 +263,6 @@
           else this.form.numStates[i] = 'normal';
         },
 
-        // ✅ ฟังก์ชันดึงสีของปุ่ม
         getStateClass(i) {
           const state = this.form.numStates[i];
           if (state === 'force') return 'bg-green-50 border-green-500 text-green-700 ring-2 ring-green-100 shadow-inner';
@@ -252,7 +270,6 @@
           return 'bg-white border-slate-100 text-slate-600 hover:border-green-200';
         },
 
-        // ✅ ฟังก์ชันรีเซ็ตปุ่ม
         resetNumStates() {
            this.form.numStates = { '0':'normal', '1':'normal', '2':'normal', '3':'normal', '4':'normal', '5':'normal', '6':'normal', '7':'normal', '8':'normal', '9':'normal' };
            this.showToast('รีเซ็ตล็อคเลขทั้งหมดแล้ว', '✅');
@@ -265,10 +282,30 @@
 
         copyResult() {
           if (!this.result) return;
-          const text = `เลขเด่น ${this.form.lotteryType}: ${this.result.prediction.join('-')}`;
+          // ก็อปทั้ง 5 ตัวเด่น และชุดวิน
+          let text = `เลขเด่น ${this.form.lotteryType}: ${this.result.prediction.join('-')}\n`;
+          text += `2 ตัว: ${this.combos.two.join(', ')}\n`;
+          text += `3 ตัว: ${this.combos.three.join(', ')}`;
+          
           navigator.clipboard.writeText(text).then(() => {
             this.showToast('คัดลอกตัวเลขเรียบร้อย', '📋');
           });
+        },
+
+        // ✅ ฟังก์ชันคณิตศาสตร์จับคู่วินเลข (Combinatorics)
+        generateCombos(array, size) {
+          let result = [];
+          const combine = (prefix, arr) => {
+            for (let i = 0; i < arr.length; i++) {
+              if (prefix.length + 1 === size) {
+                result.push(prefix + arr[i]);
+              } else {
+                combine(prefix + arr[i], arr.slice(i + 1));
+              }
+            }
+          };
+          combine('', array);
+          return result;
         },
 
         async fetchHistory() {
@@ -287,35 +324,37 @@
 
         async analyze() {
           if (!API_URL || API_URL.includes("วาง_URL")) {
-            this.showToast('กรุณาใส่ API_URL ในโค้ดด้วยครับ', '❌');
-            return;
+            this.showToast('กรุณาใส่ API_URL ในโค้ดด้วยครับ', '❌'); return;
           }
           if (!this.form.inputNumbers) {
-            this.showToast('กรุณากรอกเลขงวดล่าสุดก่อนครับ', '⚠️');
-            return;
+            this.showToast('กรุณากรอกเลขงวดล่าสุดก่อนครับ', '⚠️'); return;
           }
           
           this.loading = true;
           this.result = null;
+          this.combos = { two: [], three: [] }; // ล้างค่าชุดเดิม
           
           try {
             const response = await fetch(API_URL, {
               method: 'POST',
               headers: { "Content-Type": "text/plain;charset=utf-8" },
-              body: JSON.stringify({
-                action: 'analyze',
-                data: this.form
-              })
+              body: JSON.stringify({ action: 'analyze', data: this.form })
             });
             
             const data = await response.json();
             this.result = data;
+            
+            // ✅ นำผลลัพธ์ 5 ตัว มาสร้างชุด 2 ตัว และ 3 ตัวทันที
+            if(data.prediction && data.prediction.length >= 3) {
+               this.combos.two = this.generateCombos(data.prediction, 2);
+               this.combos.three = this.generateCombos(data.prediction, 3);
+            }
+
             this.showToast(data.message, '✅');
             this.fetchHistory(); 
             
           } catch (error) {
             this.showToast('เชื่อมต่อล้มเหลว ตรวจสอบการตั้งค่า API', '❌');
-            console.error("Analysis Error:", error);
           } finally {
             this.loading = false;
           }
@@ -324,47 +363,22 @@
         renderCharts() {
           if (this.chartsRendered) return;
           this.chartsRendered = true;
-          
           setTimeout(() => {
-            const chartConfig = {
-              responsive: true,
-              maintainAspectRatio: false,
-              plugins: { legend: { display: false } }
-            };
-
+            const chartConfig = { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } };
             const ctx1 = document.getElementById('engineChart');
             if (ctx1) {
               new Chart(ctx1.getContext('2d'), {
                 type: 'bar',
-                data: {
-                  labels: ['โหมด A', 'โหมด B', 'โหมด C'],
-                  datasets: [{
-                    data: [78, 92, 65], 
-                    backgroundColor: ['#34d399', '#3b82f6', '#fb923c'],
-                    borderRadius: 10
-                  }]
-                },
+                data: { labels: ['โหมด A', 'โหมด B', 'โหมด C'], datasets: [{ data: [78, 92, 65], backgroundColor: ['#34d399', '#3b82f6', '#fb923c'], borderRadius: 10 }] },
                 options: chartConfig
               });
             }
-
             const ctx2 = document.getElementById('formulaChart');
             if (ctx2) {
               new Chart(ctx2.getContext('2d'), {
                 type: 'doughnut',
-                data: {
-                  labels: ['บวกคงที่', 'คูณทะลวง', 'บวกไขว้', 'เลขเงา'],
-                  datasets: [{
-                    data: [35, 20, 40, 5],
-                    backgroundColor: ['#10b981', '#3b82f6', '#f59e0b', '#ec4899'],
-                    borderWidth: 0
-                  }]
-                },
-                options: {
-                  ...chartConfig,
-                  plugins: { legend: { display: true, position: 'bottom', labels: { boxWidth: 10, font: { size: 10 } } } },
-                  cutout: '75%'
-                }
+                data: { labels: ['บวกคงที่', 'คูณทะลวง', 'บวกไขว้', 'เลขเงา'], datasets: [{ data: [35, 20, 40, 5], backgroundColor: ['#10b981', '#3b82f6', '#f59e0b', '#ec4899'], borderWidth: 0 }] },
+                options: { ...chartConfig, plugins: { legend: { display: true, position: 'bottom', labels: { boxWidth: 10, font: { size: 10 } } } }, cutout: '75%' }
               });
             }
           }, 100);

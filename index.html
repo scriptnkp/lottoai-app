@@ -70,8 +70,8 @@
         </div>
         <div class="flex-1 overflow-y-auto p-4 space-y-1.5">
           <template x-for="item in [
-            {id: 'ตรวจสลาก', icon: '🎫', name: 'ตรวจสลากรัฐบาล'},
             {id: 'สถิติ', icon: '📊', name: 'สถิติภาพรวม'},
+            {id: 'ตรวจสลาก', icon: '🎫', name: 'ตรวจสลากรัฐบาล'},
             {id: 'วิเคราะห์', icon: '🎯', name: 'วิเคราะห์เลขเด่น'},
             {id: 'ทำนายฝัน', icon: '💭', name: 'ทำนายฝัน'},
             {id: 'ความแม่น', icon: '⚙️', name: 'ตั้งค่า Engine'},
@@ -119,88 +119,54 @@
         </div>
       </div>
 
-      <div x-show="tab === 'วิเคราะห์'" x-cloak x-transition.opacity.duration.300ms>
-        <div class="glass-card p-6 mb-5">
-          <div class="flex justify-between items-center mb-3"><label class="text-[11px] font-extrabold text-slate-400 uppercase tracking-wider">เลือกรายการหวย</label><div class="bg-emerald-50 px-2.5 py-1 rounded-lg flex items-center gap-1"><span class="text-[10px] text-emerald-600 font-bold" x-text="'กำลังวัน: ' + currentDayName"></span></div></div>
-          <select x-model="form.lotteryType" class="w-full p-4 rounded-2xl border border-slate-100 bg-slate-50 outline-none font-black text-slate-700 text-lg focus:ring-2 focus:ring-emerald-400 transition-all cursor-pointer"><option value="รัฐบาลไทย">🇹🇭 รัฐบาลไทย</option><option value="ลาวพัฒนา">🇱🇦 ลาวพัฒนา</option><option value="ฮานอยอาเซียน">🇻🇳 ฮานอยอาเซียน</option><option value="หวยออมสิน">🏦 หวยออมสิน</option></select>
-        </div>
-
-        <div class="glass-card p-8 text-center mb-5 relative overflow-hidden">
-          <div class="absolute top-0 left-0 w-full h-1.5 bg-emerald-400"></div>
-          <p class="text-xs text-slate-400 mb-4 font-extrabold uppercase tracking-widest">ผลรางวัลงวดล่าสุด</p>
-          <input type="number" x-model="form.inputNumbers" placeholder="000000" class="w-full text-center text-5xl font-black tracking-[0.2em] text-slate-300 focus:text-slate-800 bg-transparent outline-none transition-all">
-        </div>
-
-        <div class="flex gap-3 mb-6">
-          <button @click="analyze()" :disabled="loading" class="flex-[3] bg-emerald-500 text-white py-4 rounded-2xl font-black shadow-lg shadow-emerald-200 active:scale-95 transition-all text-lg flex justify-center items-center disabled:opacity-50"><span x-show="!loading">🎯 เริ่มวิเคราะห์</span><span x-show="loading" class="flex items-center gap-2"><svg class="animate-spin h-5 w-5" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> ประมวลผล...</span></button>
-          <button @click="form.inputNumbers = ''; result = null; combos = {two:[], three:[]}" class="flex-1 bg-white text-slate-500 border border-slate-200 py-4 rounded-2xl font-black hover:bg-rose-50 hover:text-rose-500 transition-colors">ล้าง</button>
-        </div>
-
-        <div id="capture-area" x-show="result" x-transition.opacity.duration.500ms class="bg-[#eefcf6] -mx-4 px-4 pb-6 pt-2">
-          <div id="watermark" class="hidden text-center mb-6 mt-4"><div class="flex justify-center items-center gap-2 mb-1"><div class="w-6 h-6 bg-emerald-500 rounded-lg flex items-center justify-center text-white font-black text-sm">L</div><h2 class="text-xl font-black text-slate-800">LOTTOAI PRO</h2></div><p class="text-xs text-slate-500 font-medium" x-text="'ผลวิเคราะห์ ' + form.lotteryType + ' (สูตรกำลังวัน: ' + currentDayName + ')'"></p></div>
-          <div class="glass-card p-6 mb-4">
-            <div class="flex justify-between items-center mb-6">
-              <div class="flex items-center gap-2"><span class="text-xl">✨</span><p class="text-sm text-emerald-800 font-extrabold">เลขเด่น AI แนะนำ</p></div>
-              <div class="flex gap-2" data-html2canvas-ignore>
-                <button @click="copyResult()" class="text-[10px] bg-slate-100 text-slate-600 px-3 py-2 rounded-xl font-bold flex items-center gap-1">📋 คัดลอก</button>
-                <button @click="shareAsImage()" class="text-[10px] bg-emerald-100 text-emerald-700 px-3 py-2 rounded-xl font-bold flex items-center gap-1">🖼️ แชร์ภาพ</button>
-              </div>
-            </div>
-            <div class="flex justify-between px-2"><template x-for="num in result?.prediction"><div class="flex flex-col items-center"><span class="text-4xl font-black text-slate-800 bg-slate-50 w-16 h-16 flex items-center justify-center rounded-[1.2rem] shadow-sm border border-slate-100 mb-3" x-text="num"></span><div class="w-2 h-2 bg-emerald-400 rounded-full shadow-sm"></div></div></template></div>
-          </div>
-          <div class="grid grid-cols-2 gap-4">
-            <div class="glass-card p-5"><h3 class="text-xs font-extrabold text-slate-700 mb-4 flex items-center gap-1.5"><span class="bg-amber-100 p-1 rounded-md text-[10px]">✌️</span> 2 ตัว (บน-ล่าง)</h3><div class="flex flex-wrap gap-2"><template x-for="c in combos.two"><span class="text-xs font-bold text-slate-700 bg-slate-50 px-3 py-2 rounded-xl" x-text="c"></span></template></div></div>
-            <div class="bg-emerald-500 p-5 rounded-[2rem] shadow-lg shadow-emerald-200 text-white"><h3 class="text-xs font-extrabold mb-4 flex items-center gap-1.5"><span class="bg-emerald-400 p-1 rounded-md text-[10px]">🤟</span> 3 ตัว (เต็ง-โต๊ด)</h3><div class="flex flex-wrap gap-2"><template x-for="c in combos.three"><span class="text-xs font-bold text-emerald-900 bg-white px-3 py-2 rounded-xl" x-text="c"></span></template></div></div>
-          </div>
-        </div>
-      </div>
-
       <div x-show="tab === 'ตรวจสลาก'" x-cloak x-transition.opacity.duration.300ms>
         <div class="glass-card p-8 mb-6 text-center">
           <div class="w-20 h-20 bg-emerald-50 rounded-full flex items-center justify-center mx-auto mb-5 text-4xl">🎫</div>
           <h2 class="text-2xl font-black text-slate-800 mb-2">ตรวจสลากกินแบ่งรัฐบาล</h2>
-          <div class="mb-6"><select x-model="selectedLottoDate" class="w-full bg-slate-50 border border-slate-100 text-slate-700 font-bold py-3.5 px-4 rounded-xl outline-none focus:ring-2 focus:ring-emerald-400 text-center"><template x-for="d in lottoDates"><option :value="d.value" x-text="d.label"></option></template></select></div>
+          <div class="mb-6">
+            <select x-model="selectedLottoDate" class="w-full bg-slate-50 border border-slate-100 text-slate-700 font-bold py-3.5 px-4 rounded-xl outline-none focus:ring-2 focus:ring-emerald-400 text-center">
+              <template x-for="d in lottoDates"><option :value="d.value" x-text="d.label"></option></template>
+            </select>
+          </div>
           <input type="text" maxlength="6" inputmode="numeric" x-model="checkLottoNumber" class="w-full text-center text-5xl font-black tracking-[0.25em] py-6 rounded-2xl border border-slate-100 bg-slate-50 outline-none text-slate-800 focus:ring-2 focus:ring-emerald-400 transition-all mb-6 placeholder-slate-300" placeholder="000000">
-          <button @click="verifyLottoReal()" :disabled="checkLottoLoading" class="w-full bg-emerald-500 text-white py-4.5 rounded-2xl font-black shadow-lg shadow-emerald-200 active:scale-95 transition-all text-lg flex justify-center items-center gap-2 disabled:opacity-50"><span x-show="!checkLottoLoading">ตรวจผลรางวัล</span><span x-show="checkLottoLoading" class="flex items-center gap-2"><svg class="animate-spin h-5 w-5" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> รอสักครู่...</span></button>
+          
+          <button @click="verifyLottoReal()" :disabled="checkLottoLoading" class="w-full bg-emerald-500 text-white py-4.5 rounded-2xl font-black shadow-lg shadow-emerald-200 active:scale-95 transition-all text-lg flex justify-center items-center gap-2 disabled:opacity-50">
+            <span x-show="!checkLottoLoading">ตรวจผลรางวัล</span>
+            <span x-show="checkLottoLoading" class="flex items-center gap-2"><svg class="animate-spin h-5 w-5" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> รอสักครู่...</span>
+          </button>
         </div>
+
         <div x-show="checkLottoResult" x-transition.opacity.duration.500ms class="glass-card p-8 text-center">
           <div class="text-6xl mb-4" x-text="checkLottoResult?.icon"></div>
-          <h3 class="text-2xl font-black mb-2" :class="checkLottoResult?.isWin ? 'text-emerald-600' : 'text-slate-700'" x-text="checkLottoResult?.title"></h3>
+          <h3 class="text-2xl font-black mb-2" :class="checkLottoResult?.isWin ? 'text-emerald-600' : 'text-rose-500'" x-text="checkLottoResult?.title"></h3>
           <p class="text-sm font-bold text-slate-500 mb-6" x-text="checkLottoResult?.message"></p>
           <div x-show="checkLottoResult?.isWin" class="bg-emerald-50 rounded-2xl p-4 mb-5"><p class="text-[11px] text-emerald-600 font-bold uppercase tracking-wider mb-1">เงินรางวัลที่ได้รับ</p><p class="text-3xl font-black text-emerald-700"><span x-text="checkLottoResult?.reward"></span> <span class="text-base">บาท</span></p></div>
           <div class="bg-slate-50 py-3.5 px-5 rounded-xl border border-slate-100 flex justify-between items-center"><span class="text-xs text-slate-400 font-bold" x-text="'งวด: ' + (checkLottoResult?.date || 'ล่าสุด')"></span><span class="text-xl font-black text-slate-700 tracking-widest" x-text="checkLottoNumber"></span></div>
         </div>
       </div>
 
-      <div x-show="tab === 'ทำนายฝัน'" x-cloak x-transition.opacity.duration.300ms>
-        <div class="glass-card p-6 mb-6">
-          <div class="flex items-center gap-3 mb-3"><span class="text-3xl">💭</span><h2 class="text-xl font-black text-slate-800">ค้นหาเลขเด็ดจากฝัน</h2></div>
-          <p class="text-xs text-slate-500 mb-5 font-medium">พิมพ์สิ่งที่เจอในฝัน เช่น "ฝันเห็นงู", "เล่นขี้", "คนตาย"</p>
-          <input type="text" x-model="dreamText" @keyup.enter="interpretDream()" class="w-full px-5 py-4 rounded-2xl border border-slate-100 bg-slate-50 outline-none text-slate-800 focus:ring-2 focus:ring-emerald-400 transition-all font-bold placeholder-slate-300 mb-5" placeholder="พิมพ์ความฝันของคุณที่นี่...">
-          <button @click="interpretDream()" class="w-full bg-slate-800 text-white py-4 rounded-2xl font-black shadow-lg shadow-slate-200 active:scale-95 transition-all text-lg">🔍 ถอดรหัสคำทำนาย</button>
+      <div x-show="tab === 'วิเคราะห์'" x-cloak x-transition.opacity.duration.300ms>
+        <div class="glass-card p-6 mb-5">
+          <div class="flex justify-between items-center mb-3"><label class="text-[11px] font-extrabold text-slate-400 uppercase tracking-wider">เลือกรายการหวย</label><div class="bg-emerald-50 px-2.5 py-1 rounded-lg flex items-center gap-1"><span class="text-[10px] text-emerald-600 font-bold" x-text="'กำลังวัน: ' + currentDayName"></span></div></div>
+          <select x-model="form.lotteryType" class="w-full p-4 rounded-2xl border border-slate-100 bg-slate-50 outline-none font-black text-slate-700 text-lg focus:ring-2 focus:ring-emerald-400 transition-all cursor-pointer"><option value="รัฐบาลไทย">🇹🇭 รัฐบาลไทย</option><option value="ลาวพัฒนา">🇱🇦 ลาวพัฒนา</option><option value="ฮานอยอาเซียน">🇻🇳 ฮานอยอาเซียน</option><option value="หวยออมสิน">🏦 หวยออมสิน</option></select>
         </div>
-        <div x-show="dreamData" x-transition.opacity.duration.500ms class="glass-card p-6">
-          <h2 class="text-xl font-black text-slate-800 mb-6 border-b-2 border-emerald-100 pb-3 inline-block">สรุปคำทำนายและเลขเด็ด</h2>
-          <ul class="space-y-5 bullet-list list-disc list-inside ml-2">
-            <li class="pl-1"><span class="font-black text-slate-800 text-[15px]">คำทำนาย: </span><span class="text-[14.5px] text-slate-600 font-medium" x-text="dreamData?.meaning"></span></li>
-            <li class="pl-1"><span class="font-black text-slate-800 text-[15px]">เลขเด็ดแม่นๆ: </span><span class="text-[16px] font-black tracking-widest text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-lg" x-text="dreamData?.mainNumbers"></span></li>
-            <li class="pl-1"><span class="font-black text-slate-800 text-[15px]">เลขรอง: </span><span class="text-[15px] font-bold tracking-widest text-slate-600" x-text="dreamData?.secondaryNumbers"></span></li>
-            <li class="pl-1"><span class="font-black text-slate-800 text-[15px]">เลขชุด 3 ตัว: </span><span class="text-[15px] font-bold tracking-widest text-emerald-600" x-text="dreamData?.threeDigits"></span></li>
-            <li class="pl-1"><span class="font-black text-slate-800 text-[15px]">เลขชุด 2 ตัว: </span><span class="text-[15px] font-bold tracking-widest text-slate-600" x-text="dreamData?.twoDigits"></span></li>
-          </ul>
-          <button @click="copyDream()" class="mt-8 w-full bg-emerald-50 text-emerald-700 py-4 rounded-2xl font-black transition-colors flex items-center justify-center gap-2">📋 คัดลอกคำทำนาย</button>
+        <div class="glass-card p-8 text-center mb-5 relative overflow-hidden"><div class="absolute top-0 left-0 w-full h-1.5 bg-emerald-400"></div><p class="text-xs text-slate-400 mb-4 font-extrabold uppercase tracking-widest">ผลรางวัลงวดล่าสุด</p><input type="number" x-model="form.inputNumbers" placeholder="000000" class="w-full text-center text-5xl font-black tracking-[0.2em] text-slate-300 focus:text-slate-800 bg-transparent outline-none transition-all"></div>
+        <div class="flex gap-3 mb-6"><button @click="analyze()" :disabled="loading" class="flex-[3] bg-emerald-500 text-white py-4 rounded-2xl font-black shadow-lg shadow-emerald-200 active:scale-95 transition-all text-lg flex justify-center items-center disabled:opacity-50"><span x-show="!loading">🎯 เริ่มวิเคราะห์</span><span x-show="loading" class="flex items-center gap-2"><svg class="animate-spin h-5 w-5" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> ประมวลผล...</span></button><button @click="form.inputNumbers = ''; result = null; combos = {two:[], three:[]}" class="flex-1 bg-white text-slate-500 border border-slate-200 py-4 rounded-2xl font-black hover:bg-rose-50 hover:text-rose-500 transition-colors">ล้าง</button></div>
+        <div id="capture-area" x-show="result" x-transition.opacity.duration.500ms class="bg-[#eefcf6] -mx-4 px-4 pb-6 pt-2">
+          <div id="watermark" class="hidden text-center mb-6 mt-4"><div class="flex justify-center items-center gap-2 mb-1"><div class="w-6 h-6 bg-emerald-500 rounded-lg flex items-center justify-center text-white font-black text-sm">L</div><h2 class="text-xl font-black text-slate-800">LOTTOAI PRO</h2></div><p class="text-xs text-slate-500 font-medium" x-text="'ผลวิเคราะห์ ' + form.lotteryType + ' (สูตรกำลังวัน: ' + currentDayName + ')'"></p></div>
+          <div class="glass-card p-6 mb-4"><div class="flex justify-between items-center mb-6"><div class="flex items-center gap-2"><span class="text-xl">✨</span><p class="text-sm text-emerald-800 font-extrabold">เลขเด่น AI แนะนำ</p></div><div class="flex gap-2" data-html2canvas-ignore><button @click="copyResult()" class="text-[10px] bg-slate-100 text-slate-600 px-3 py-2 rounded-xl font-bold flex items-center gap-1">📋 คัดลอก</button><button @click="shareAsImage()" class="text-[10px] bg-emerald-100 text-emerald-700 px-3 py-2 rounded-xl font-bold flex items-center gap-1">🖼️ แชร์ภาพ</button></div></div><div class="flex justify-between px-2"><template x-for="num in result?.prediction"><div class="flex flex-col items-center"><span class="text-4xl font-black text-slate-800 bg-slate-50 w-16 h-16 flex items-center justify-center rounded-[1.2rem] shadow-sm border border-slate-100 mb-3" x-text="num"></span><div class="w-2 h-2 bg-emerald-400 rounded-full shadow-sm"></div></div></template></div></div>
+          <div class="grid grid-cols-2 gap-4"><div class="glass-card p-5"><h3 class="text-xs font-extrabold text-slate-700 mb-4 flex items-center gap-1.5"><span class="bg-amber-100 p-1 rounded-md text-[10px]">✌️</span> 2 ตัว (บน-ล่าง)</h3><div class="flex flex-wrap gap-2"><template x-for="c in combos.two"><span class="text-xs font-bold text-slate-700 bg-slate-50 px-3 py-2 rounded-xl" x-text="c"></span></template></div></div><div class="bg-emerald-500 p-5 rounded-[2rem] shadow-lg shadow-emerald-200 text-white"><h3 class="text-xs font-extrabold mb-4 flex items-center gap-1.5"><span class="bg-emerald-400 p-1 rounded-md text-[10px]">🤟</span> 3 ตัว (เต็ง-โต๊ด)</h3><div class="flex flex-wrap gap-2"><template x-for="c in combos.three"><span class="text-xs font-bold text-emerald-900 bg-white px-3 py-2 rounded-xl" x-text="c"></span></template></div></div></div>
         </div>
       </div>
 
+      <div x-show="tab === 'ทำนายฝัน'" x-cloak x-transition.opacity.duration.300ms>
+        <div class="glass-card p-6 mb-6"><div class="flex items-center gap-3 mb-3"><span class="text-3xl">💭</span><h2 class="text-xl font-black text-slate-800">ค้นหาเลขเด็ดจากฝัน</h2></div><p class="text-xs text-slate-500 mb-5 font-medium">พิมพ์สิ่งที่เจอในฝัน เช่น "ฝันเห็นงู", "เล่นขี้", "คนตาย"</p><input type="text" x-model="dreamText" @keyup.enter="interpretDream()" class="w-full px-5 py-4 rounded-2xl border border-slate-100 bg-slate-50 outline-none text-slate-800 focus:ring-2 focus:ring-emerald-400 transition-all font-bold placeholder-slate-300 mb-5" placeholder="พิมพ์ความฝันของคุณที่นี่..."><button @click="interpretDream()" class="w-full bg-slate-800 text-white py-4 rounded-2xl font-black shadow-lg shadow-slate-200 active:scale-95 transition-all text-lg">🔍 ถอดรหัสคำทำนาย</button></div>
+        <div x-show="dreamData" x-transition.opacity.duration.500ms class="glass-card p-6"><h2 class="text-xl font-black text-slate-800 mb-6 border-b-2 border-emerald-100 pb-3 inline-block">สรุปคำทำนายและเลขเด็ด</h2><ul class="space-y-5 bullet-list list-disc list-inside ml-2"><li class="pl-1"><span class="font-black text-slate-800 text-[15px]">คำทำนาย: </span><span class="text-[14.5px] text-slate-600 font-medium" x-text="dreamData?.meaning"></span></li><li class="pl-1"><span class="font-black text-slate-800 text-[15px]">เลขเด็ดแม่นๆ: </span><span class="text-[16px] font-black tracking-widest text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-lg" x-text="dreamData?.mainNumbers"></span></li><li class="pl-1"><span class="font-black text-slate-800 text-[15px]">เลขรอง: </span><span class="text-[15px] font-bold tracking-widest text-slate-600" x-text="dreamData?.secondaryNumbers"></span></li><li class="pl-1"><span class="font-black text-slate-800 text-[15px]">เลขชุด 3 ตัว: </span><span class="text-[15px] font-bold tracking-widest text-emerald-600" x-text="dreamData?.threeDigits"></span></li><li class="pl-1"><span class="font-black text-slate-800 text-[15px]">เลขชุด 2 ตัว: </span><span class="text-[15px] font-bold tracking-widest text-slate-600" x-text="dreamData?.twoDigits"></span></li></ul><button @click="copyDream()" class="mt-8 w-full bg-emerald-50 text-emerald-700 py-4 rounded-2xl font-black transition-colors flex items-center justify-center gap-2">📋 คัดลอกคำทำนาย</button></div>
+      </div>
+
       <div x-show="tab === 'ความแม่น'" x-cloak x-transition.opacity.duration.300ms>
-        <div class="glass-card p-6 mb-6">
-          <h2 class="font-black text-slate-800 mb-2 text-xl">⚙️ ปรับโหมด Engine</h2>
-          <div class="space-y-4 mt-5"><template x-for="mode in engines"><div @click="form.engineMode = mode.id" :class="form.engineMode === mode.id ? 'border-emerald-500 bg-emerald-50 shadow-md shadow-emerald-100' : 'border-slate-100 bg-white'" class="p-5 border-2 rounded-2xl cursor-pointer transition-all flex justify-between items-center"><div><h3 class="font-black text-[15px] text-slate-800 mb-1" x-text="mode.title"></h3><p class="text-[11px] text-slate-500 font-medium" x-text="mode.desc"></p></div><div x-show="form.engineMode === mode.id" class="text-emerald-500 bg-white p-1 rounded-full shadow-sm"><svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg></div></div></template></div>
-        </div>
-        <div class="glass-card p-6">
-          <div class="flex justify-between items-center mb-6"><div><h2 class="font-black text-slate-800 text-xl mb-1">🔢 บังคับ/แบนเลข</h2></div><button @click="resetNumStates()" class="text-xs font-bold bg-slate-100 text-slate-500 px-4 py-2 rounded-xl">รีเซ็ต</button></div>
-          <div class="grid grid-cols-5 gap-3"><template x-for="i in [0,1,2,3,4,5,6,7,8,9]"><button @click="toggleState(i)" :class="getStateClass(i)" class="h-16 rounded-2xl font-black transition-all relative text-2xl"><span x-text="i"></span><div x-show="form.numStates[i] === 'force'" class="absolute -top-1.5 -right-1.5 w-5 h-5 bg-emerald-500 rounded-full border-[3px] border-white flex items-center justify-center"><svg class="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="4" d="M5 13l4 4L19 7"></path></svg></div><div x-show="form.numStates[i] === 'ban'" class="absolute -top-1.5 -right-1.5 w-5 h-5 bg-rose-500 rounded-full border-[3px] border-white flex items-center justify-center"><svg class="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="4" d="M6 18L18 6M6 6l12 12"></path></svg></div></button></template></div>
-        </div>
+        <div class="glass-card p-6 mb-6"><h2 class="font-black text-slate-800 mb-2 text-xl">⚙️ ปรับโหมด Engine</h2><div class="space-y-4 mt-5"><template x-for="mode in engines"><div @click="form.engineMode = mode.id" :class="form.engineMode === mode.id ? 'border-emerald-500 bg-emerald-50 shadow-md shadow-emerald-100' : 'border-slate-100 bg-white'" class="p-5 border-2 rounded-2xl cursor-pointer transition-all flex justify-between items-center"><div><h3 class="font-black text-[15px] text-slate-800 mb-1" x-text="mode.title"></h3><p class="text-[11px] text-slate-500 font-medium" x-text="mode.desc"></p></div><div x-show="form.engineMode === mode.id" class="text-emerald-500 bg-white p-1 rounded-full shadow-sm"><svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg></div></div></template></div></div>
+        <div class="glass-card p-6"><div class="flex justify-between items-center mb-6"><div><h2 class="font-black text-slate-800 text-xl mb-1">🔢 บังคับ/แบนเลข</h2></div><button @click="resetNumStates()" class="text-xs font-bold bg-slate-100 text-slate-500 px-4 py-2 rounded-xl">รีเซ็ต</button></div><div class="grid grid-cols-5 gap-3"><template x-for="i in [0,1,2,3,4,5,6,7,8,9]"><button @click="toggleState(i)" :class="getStateClass(i)" class="h-16 rounded-2xl font-black transition-all relative text-2xl"><span x-text="i"></span><div x-show="form.numStates[i] === 'force'" class="absolute -top-1.5 -right-1.5 w-5 h-5 bg-emerald-500 rounded-full border-[3px] border-white flex items-center justify-center"><svg class="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="4" d="M5 13l4 4L19 7"></path></svg></div><div x-show="form.numStates[i] === 'ban'" class="absolute -top-1.5 -right-1.5 w-5 h-5 bg-rose-500 rounded-full border-[3px] border-white flex items-center justify-center"><svg class="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="4" d="M6 18L18 6M6 6l12 12"></path></svg></div></button></template></div></div>
       </div>
 
       <div x-show="tab === 'ประวัติ'" x-cloak x-transition.opacity.duration.300ms>
@@ -208,12 +174,7 @@
         <div class="space-y-4">
           <div x-show="loadingHistory" class="glass-card py-16 text-sm flex flex-col items-center justify-center gap-3"><div class="w-8 h-8 border-4 border-emerald-100 border-t-emerald-500 rounded-full animate-spin"></div><span class="text-slate-500 font-bold">กำลังซิงค์ข้อมูล...</span></div>
           <div x-show="!loadingHistory && history.length === 0" class="glass-card text-center text-slate-400 py-16 font-bold">ยังไม่มีประวัติการวิเคราะห์</div>
-          <template x-for="item in history">
-            <div class="glass-card p-5 flex justify-between items-center">
-              <div><div class="flex gap-2 items-center mb-1.5"><span class="text-[15px] font-black text-slate-800" x-text="item.type"></span><span class="text-[9px] bg-slate-800 text-white px-2 py-0.5 rounded-md font-bold uppercase" x-text="'โหมด ' + item.mode"></span></div><p class="text-[10px] text-slate-400 font-medium" x-text="item.time"></p></div>
-              <div class="text-right"><span class="text-lg font-black text-emerald-600 bg-emerald-50 px-4 py-2.5 rounded-xl border border-emerald-100" x-text="item.result"></span></div>
-            </div>
-          </template>
+          <template x-for="item in history"><div class="glass-card p-5 flex justify-between items-center"><div><div class="flex gap-2 items-center mb-1.5"><span class="text-[15px] font-black text-slate-800" x-text="item.type"></span><span class="text-[9px] bg-slate-800 text-white px-2 py-0.5 rounded-md font-bold uppercase" x-text="'โหมด ' + item.mode"></span></div><p class="text-[10px] text-slate-400 font-medium" x-text="item.time"></p></div><div class="text-right"><span class="text-lg font-black text-emerald-600 bg-emerald-50 px-4 py-2.5 rounded-xl border border-emerald-100" x-text="item.result"></span></div></div></template>
         </div>
       </div>
 
@@ -226,9 +187,7 @@
     
     function lottoApp() {
       return {
-        // ระบบ Auth
         isLoggedIn: false, authMode: 'login', authData: { username: '', password: '' }, username: '',
-        
         tab: 'สถิติ', isMenuOpen: false, loading: false, loadingHistory: false, result: null, history: [], combos: { two: [], three: [] },
         toast: { show: false, msg: '', icon: '' }, currentDayName: '', chartsRendered: false,
         checkLottoNumber: '', checkLottoLoading: false, checkLottoResult: null, selectedLottoDate: 'latest', lottoDates: [],
@@ -246,7 +205,6 @@
           this.setDayName(); this.lottoDates = this.generateLottoDates(); 
         },
 
-        // ระบบ Login
         async handleAuth() {
           if(!this.authData.username || !this.authData.password) return this.showToast('กรุณากรอกข้อมูลให้ครบ', '⚠️');
           this.loading = true;
@@ -255,23 +213,15 @@
             const data = await res.json();
             if(data.status === 'success') {
               if(this.authMode === 'login') {
-                this.username = data.username; this.isLoggedIn = true;
-                localStorage.setItem('lottoUser', data.username);
-                this.fetchHistory();
-                this.tab = 'สถิติ'; // เข้าสู่ระบบปุ๊บเจอสถิติ
-                setTimeout(() => this.renderCharts(), 200);
+                this.username = data.username; this.isLoggedIn = true; localStorage.setItem('lottoUser', data.username);
+                this.fetchHistory(); this.tab = 'สถิติ'; setTimeout(() => this.renderCharts(), 200);
                 this.showToast('เข้าสู่ระบบสำเร็จ!', '✅');
-              } else {
-                this.showToast('สมัครสมาชิกสำเร็จ กรุณาเข้าสู่ระบบ', '🎉');
-                this.authMode = 'login'; this.authData.password = '';
-              }
+              } else { this.showToast('สมัครสมาชิกสำเร็จ กรุณาเข้าสู่ระบบ', '🎉'); this.authMode = 'login'; this.authData.password = ''; }
             } else { this.showToast(data.message, '❌'); }
-          } catch(e) { this.showToast('การเชื่อมต่อล้มเหลว', '🔌'); }
-          this.loading = false;
+          } catch(e) { this.showToast('การเชื่อมต่อล้มเหลว', '🔌'); } this.loading = false;
         },
         logout() { localStorage.removeItem('lottoUser'); location.reload(); },
 
-        // ระบบวัน และ สลับหน้า
         setDayName() { const days = ['อาทิตย์', 'จันทร์', 'อังคาร', 'พุธ', 'พฤหัสบดี', 'ศุกร์', 'เสาร์']; this.currentDayName = days[new Date().getDay()]; },
         switchTab(t) { this.tab = t; this.isMenuOpen = false; this.checkLottoResult = null; if(t === 'ประวัติ') this.fetchHistory(); if(t === 'สถิติ') this.renderCharts(); },
 
@@ -289,22 +239,53 @@
           } return dates;
         },
 
+        // ✅ ฟังก์ชันตรวจสลากใหม่! ดึงข้อมูลตรงเข้าหน้าเว็บเลย ไม่ผ่าน Google Script
         async verifyLottoReal() {
           if(this.checkLottoNumber.length !== 6) return this.showToast('กรุณากรอกเลขให้ครบ 6 หลัก', '⚠️');
           this.checkLottoLoading = true; this.checkLottoResult = null;
+          
           try {
-            const res = await fetch(API_URL, { method: 'POST', headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify({ action: 'checkLotto', date: this.selectedLottoDate }) });
+            // ยิง API ตรงไปที่กองสลาก (RayRiffy)
+            const endpoint = this.selectedLottoDate === 'latest' ? 'https://lotto.api.rayriffy.com/latest' : `https://lotto.api.rayriffy.com/lotto/${this.selectedLottoDate}`;
+            const res = await fetch(endpoint);
             const data = await res.json();
-            if(data.status !== "success") throw new Error("API Error");
-            const lottoData = data.response; const checkNum = this.checkLottoNumber; let winData = null;
-            if (lottoData.prizes[0].number.includes(checkNum)) winData = { title: 'รางวัลที่ 1', reward: lottoData.prizes[0].reward }; else if (lottoData.runningNumbers[0].number.includes(checkNum)) winData = { title: 'รางวัลข้างเคียงรางวัลที่ 1', reward: lottoData.runningNumbers[0].reward }; else if (lottoData.prizes[1].number.includes(checkNum)) winData = { title: 'รางวัลที่ 2', reward: lottoData.prizes[1].reward }; else if (lottoData.prizes[2].number.includes(checkNum)) winData = { title: 'รางวัลที่ 3', reward: lottoData.prizes[2].reward }; else if (lottoData.prizes[3].number.includes(checkNum)) winData = { title: 'รางวัลที่ 4', reward: lottoData.prizes[3].reward }; else if (lottoData.prizes[4].number.includes(checkNum)) winData = { title: 'รางวัลที่ 5', reward: lottoData.prizes[4].reward };
-            let minorWins = []; if (lottoData.runningNumbers[1].number.includes(checkNum.substring(0, 3))) minorWins.push(`เลขหน้า 3 ตัว`); if (lottoData.runningNumbers[2].number.includes(checkNum.substring(3, 6))) minorWins.push(`เลขท้าย 3 ตัว`); if (lottoData.runningNumbers[3].number.includes(checkNum.substring(4, 6))) minorWins.push(`เลขท้าย 2 ตัว`);
+            
+            // ถ้า RayRiffy ไม่มีข้อมูลงวดนั้น หรือยิงไม่สำเร็จ
+            if(data.status !== "success" && data.status !== "ok") {
+              return this.showToast('ไม่พบข้อมูลงวดที่ระบุ', '❌');
+            }
+
+            const lottoData = data.response || data; 
+            const checkNum = this.checkLottoNumber; 
+            let winData = null;
+            
+            // เช็กรางวัลที่ 1-5
+            if (lottoData.prizes[0].number.includes(checkNum)) winData = { title: 'รางวัลที่ 1', reward: lottoData.prizes[0].reward };
+            else if (lottoData.runningNumbers[0].number.includes(checkNum)) winData = { title: 'รางวัลข้างเคียงรางวัลที่ 1', reward: lottoData.runningNumbers[0].reward };
+            else if (lottoData.prizes[1].number.includes(checkNum)) winData = { title: 'รางวัลที่ 2', reward: lottoData.prizes[1].reward };
+            else if (lottoData.prizes[2].number.includes(checkNum)) winData = { title: 'รางวัลที่ 3', reward: lottoData.prizes[2].reward };
+            else if (lottoData.prizes[3].number.includes(checkNum)) winData = { title: 'รางวัลที่ 4', reward: lottoData.prizes[3].reward };
+            else if (lottoData.prizes[4].number.includes(checkNum)) winData = { title: 'รางวัลที่ 5', reward: lottoData.prizes[4].reward };
+            
+            let minorWins = [];
+            if (lottoData.runningNumbers[1].number.includes(checkNum.substring(0, 3))) minorWins.push(`เลขหน้า 3 ตัว`);
+            if (lottoData.runningNumbers[2].number.includes(checkNum.substring(3, 6))) minorWins.push(`เลขท้าย 3 ตัว`);
+            if (lottoData.runningNumbers[3].number.includes(checkNum.substring(4, 6))) minorWins.push(`เลขท้าย 2 ตัว`);
+
             if (winData || minorWins.length > 0) {
-              let finalTitle = winData ? winData.title : minorWins[0]; if (winData && minorWins.length > 0) finalTitle += ' และ ' + minorWins.join(', ');
+              let finalTitle = winData ? winData.title : minorWins[0];
+              if (winData && minorWins.length > 0) finalTitle += ' และ ' + minorWins.join(', ');
               let displayReward = winData ? winData.reward : lottoData.runningNumbers.find(r => r.name.includes(minorWins[0].substring(0,4)))?.reward || "0";
               this.checkLottoResult = { icon: '🎉', title: 'ยินดีด้วย!', message: `คุณถูก ${finalTitle}`, reward: Number(displayReward).toLocaleString(), isWin: true, date: lottoData.date };
-            } else { this.checkLottoResult = { icon: '😢', title: 'เสียใจด้วย', message: 'สลากของคุณไม่ถูกรางวัล', reward: '0', isWin: false, date: lottoData.date }; }
-          } catch(e) { this.showToast('ดึงข้อมูลล้มเหลว', '❌'); } finally { this.checkLottoLoading = false; }
+            } else { 
+              this.checkLottoResult = { icon: '😢', title: 'เสียใจด้วย', message: 'สลากของคุณไม่ถูกรางวัล', reward: '0', isWin: false, date: lottoData.date }; 
+            }
+          } catch(e) { 
+             console.error(e);
+             this.showToast('ดึงข้อมูลล้มเหลว ลองเลือกงวดอื่นครับ', '❌'); 
+          } finally { 
+             this.checkLottoLoading = false; 
+          }
         },
 
         interpretDream() {

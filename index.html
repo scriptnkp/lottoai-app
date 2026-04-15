@@ -26,8 +26,6 @@
     @keyframes slideUp { from { transform: translateY(100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
     .toast-enter { animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
     .btn-glow { box-shadow: 0 0 20px rgba(16, 185, 129, 0.4); }
-    
-    /* สไตล์สำหรับจุด Bullet สีดำ เหมือนในตัวอย่าง */
     .bullet-list li::marker { color: #1e293b; font-size: 1.2em; }
   </style>
 </head>
@@ -209,10 +207,10 @@
     
     function lottoApp() {
       return {
-        tab: 'ทำนายฝัน', // ตั้งค่าหน้าแรกตอนเปิดแอป
+        tab: 'วิเคราะห์', // ✅ อัปเดตให้หน้าแรกคือหน้า "วิเคราะห์" แล้วครับ
         loading: false, loadingHistory: false, result: null, history: [], combos: { two: [], three: [] },
         toast: { show: false, msg: '', icon: '' }, currentDayName: '', chartsRendered: false,
-        dreamText: '', dreamData: null, // เปลี่ยนมารับค่า Object เต็มรูปแบบ
+        dreamText: '', dreamData: null,
         engines: [
           { id: 'A', title: '⚡ ความถี่สูงสุด (Frequency)', desc: 'นับเลขที่ติด Top 5 บ่อยที่สุด เหมาะกับตัวเลขกระจาย' },
           { id: 'B', title: '🏆 ลำดับคะแนน (Rank Fusion)', desc: 'ให้คะแนนตามอันดับที่ออก สมดุลที่สุดในการใช้งานจริง' },
@@ -227,11 +225,8 @@
         setDayName() { const days = ['อาทิตย์', 'จันทร์', 'อังคาร', 'พุธ', 'พฤหัสบดี', 'ศุกร์', 'เสาร์']; this.currentDayName = days[new Date().getDay()]; },
         switchTab(t) { this.tab = t; if(t === 'ประวัติ') this.fetchHistory(); if(t === 'สถิติ') this.renderCharts(); },
 
-        // ✅ ฟังก์ชันทำนายฝันแบบใหม่ (สร้างหมวดหมู่เลขเหมือนในรูป)
         interpretDream() {
           if(!this.dreamText) return this.showToast('กรุณาเล่าความฝันของคุณ', '⚠️');
-          
-          // พจนานุกรมความฝัน
           const dict = [
             { keys: ['ขี้', 'อุจจาระ', 'ส้วม'], meaning: 'มีเกณฑ์ได้รับโชคลาภจากการเสี่ยงโชค ได้รับเงินทองก้อนโต หรือข่าวดีด้านการงาน การเงินที่ติดขัดจะดีขึ้น เป็นฝันที่นำโชคดีมาให้', base: [2, 5, 6, 7, 4, 1] },
             { keys: ['งู', 'พญานาค'], meaning: 'จะมีโชคด้านความรัก อาจเจอเนื้อคู่ คนโสดจะได้พบคนถูกใจ หรืออาจมีโชคลาภจากการเดินทาง', base: [5, 6, 8, 9] },
@@ -240,47 +235,22 @@
             { keys: ['ทอง', 'เงิน', 'แหวน'], meaning: 'จะมีโชคลาภก้อนใหญ่ หรือประสบความสำเร็จในสิ่งที่หวังไว้ สมปรารถนาทุกประการ', base: [4, 6, 8, 2] },
             { keys: ['เด็ก', 'ทารก', 'ท้อง'], meaning: 'จะมีโชคลาภจากการเริ่มต้นสิ่งใหม่ๆ หรืออาจได้รับข่าวดีเรื่องบุตรบริวาร สิ่งที่คิดไว้จะสำเร็จ', base: [1, 3, 7, 5] },
           ];
-
           let matched = dict.find(item => item.keys.some(k => this.dreamText.includes(k)));
-          
           if (!matched) {
-            matched = {
-              meaning: 'เป็นความฝันที่ดี จะมีสิ่งดีๆ เข้ามาในชีวิตในเร็วๆ นี้ ให้หมั่นทำบุญเสริมสิริมงคล โชคลาภกำลังเดินทางมา',
-              base: [Math.floor(Math.random()*9), Math.floor(Math.random()*9)+1, Math.floor(Math.random()*9), Math.floor(Math.random()*9)+1]
-            };
+            matched = { meaning: 'เป็นความฝันที่ดี จะมีสิ่งดีๆ เข้ามาในชีวิตในเร็วๆ นี้ ให้หมั่นทำบุญเสริมสิริมงคล โชคลาภกำลังเดินทางมา', base: [Math.floor(Math.random()*9), Math.floor(Math.random()*9)+1, Math.floor(Math.random()*9), Math.floor(Math.random()*9)+1] };
             this.showToast('ถอดรหัสพลังงานความฝัน', '🔮');
-          } else {
-            this.showToast('ถอดรหัสฝันสำเร็จ!', '✅');
-          }
-
-          // สุ่มสร้างเลขชุดจาก Base Number เพื่อความสมจริง
-          let b = [...matched.base];
-          while(b.length < 5) b.push((b[b.length-1] + 3) % 10); // สร้างเลขหลอกถ้าฐานน้อยไป
-          
+          } else { this.showToast('ถอดรหัสฝันสำเร็จ!', '✅'); }
+          let b = [...matched.base]; while(b.length < 5) b.push((b[b.length-1] + 3) % 10); 
           const pick = (arr, n) => [...arr].sort(()=>0.5-Math.random()).slice(0, n);
-          
-          this.dreamData = {
-             meaning: matched.meaning,
-             mainNumbers: pick(b, 3).join(', '),
-             secondaryNumbers: pick(b, 4).join(', '),
-             threeDigits: [pick(b,3).join(''), pick(b,3).join(''), pick(b,3).join('')].join(', '),
-             twoDigits: [pick(b,2).join(''), pick(b,2).join(''), pick(b,2).join(''), pick(b,2).join('')].join(', ')
-          };
+          this.dreamData = { meaning: matched.meaning, mainNumbers: pick(b, 3).join(', '), secondaryNumbers: pick(b, 4).join(', '), threeDigits: [pick(b,3).join(''), pick(b,3).join(''), pick(b,3).join('')].join(', '), twoDigits: [pick(b,2).join(''), pick(b,2).join(''), pick(b,2).join(''), pick(b,2).join('')].join(', ') };
         },
 
         copyDream() {
           if (!this.dreamData) return;
-          let text = `📝 สรุปคำทำนายและเลขเด็ด\n\n`;
-          text += `ความฝัน: "${this.dreamText}"\n`;
-          text += `คำทำนาย: ${this.dreamData.meaning}\n\n`;
-          text += `เลขเด็ดแม่นๆ: ${this.dreamData.mainNumbers}\n`;
-          text += `เลขรอง: ${this.dreamData.secondaryNumbers}\n`;
-          text += `เลขชุด 3 ตัว: ${this.dreamData.threeDigits}\n`;
-          text += `เลขชุด 2 ตัว: ${this.dreamData.twoDigits}`;
+          let text = `📝 สรุปคำทำนายและเลขเด็ด\n\nความฝัน: "${this.dreamText}"\nคำทำนาย: ${this.dreamData.meaning}\n\nเลขเด็ดแม่นๆ: ${this.dreamData.mainNumbers}\nเลขรอง: ${this.dreamData.secondaryNumbers}\nเลขชุด 3 ตัว: ${this.dreamData.threeDigits}\nเลขชุด 2 ตัว: ${this.dreamData.twoDigits}`;
           navigator.clipboard.writeText(text).then(() => this.showToast('คัดลอกคำทำนายเรียบร้อย', '📋'));
         },
 
-        // ฟังก์ชันระบบหลักอื่นๆ คงเดิม
         toggleState(i) { const c = this.form.numStates[i]; this.form.numStates[i] = c === 'normal' ? 'force' : (c === 'force' ? 'ban' : 'normal'); },
         getStateClass(i) { const s = this.form.numStates[i]; if (s === 'force') return 'bg-emerald-500 text-white border-emerald-600 shadow-inner scale-95'; if (s === 'ban') return 'bg-rose-50 border-rose-500 text-rose-700 opacity-60 scale-95'; return 'bg-white border-slate-200 text-slate-700 hover:border-emerald-300'; },
         resetNumStates() { this.form.numStates = { '0':'normal', '1':'normal', '2':'normal', '3':'normal', '4':'normal', '5':'normal', '6':'normal', '7':'normal', '8':'normal', '9':'normal' }; this.showToast('รีเซ็ตล็อคเลขแล้ว', '🔄'); },

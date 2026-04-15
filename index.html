@@ -14,6 +14,8 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  
   <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600&display=swap" rel="stylesheet">
   
   <style>
@@ -84,37 +86,48 @@
         <button @click="form.inputNumbers = ''; result = null; combos = {two:[], three:[]}" class="bg-white text-slate-400 px-6 py-4 rounded-2xl font-bold shadow-sm border border-slate-100 hover:bg-slate-50 transition-colors">ลบ</button>
       </div>
 
-      <div x-show="result" x-transition class="bg-gradient-to-br from-green-50 to-emerald-100 border border-green-200 p-6 rounded-3xl relative overflow-hidden shadow-sm">
-        <div class="flex justify-between items-center mb-4">
-          <p class="text-sm text-green-700 font-bold">✨ เลขเด่น AI แนะนำ:</p>
-          <button @click="copyResult()" class="text-[10px] bg-white border border-green-200 text-green-600 px-3 py-1 rounded-full shadow-sm active:bg-green-100 transition-colors">📋 คัดลอก</button>
+      <div id="capture-area" x-show="result" x-transition class="bg-[#f0f4f8] -mx-4 px-4 pb-4 pt-2">
+        
+        <div id="watermark" class="hidden text-center mb-4">
+          <h2 class="text-xl font-bold text-slate-700 tracking-tighter">LOTTOAI PRO</h2>
+          <p class="text-[10px] text-slate-500">ผลวิเคราะห์ <span x-text="form.lotteryType"></span> งวดล่าสุด</p>
         </div>
-        <div class="flex justify-around">
-          <template x-for="num in result?.prediction">
-            <div class="flex flex-col items-center">
-              <span class="text-2xl font-bold text-slate-700 bg-white w-12 h-12 flex items-center justify-center rounded-full shadow-md border border-slate-100 mb-1" x-text="num"></span>
-              <div class="w-1 h-1 bg-green-400 rounded-full"></div>
-            </div>
-          </template>
-        </div>
-      </div>
 
-      <div x-show="result" x-transition class="mt-4 grid grid-cols-2 gap-3">
-        <div class="glass p-4 rounded-3xl shadow-sm border border-white">
-          <h3 class="text-xs font-bold text-slate-700 mb-3 flex items-center gap-1">✌️ ชุด 2 ตัว (บน-ล่าง)</h3>
-          <div class="flex flex-wrap gap-1.5">
-            <template x-for="c in combos.two">
-              <span class="text-[11px] font-bold text-slate-600 bg-white border border-slate-200 px-2.5 py-1 rounded-lg shadow-sm" x-text="c"></span>
+        <div class="bg-gradient-to-br from-green-50 to-emerald-100 border border-green-200 p-6 rounded-3xl relative overflow-hidden shadow-sm">
+          <div class="flex justify-between items-center mb-4">
+            <p class="text-sm text-green-700 font-bold">✨ เลขเด่น AI แนะนำ:</p>
+            <div class="flex gap-2" data-html2canvas-ignore>
+              <button @click="copyResult()" class="text-[10px] bg-white border border-green-200 text-green-600 px-3 py-1.5 rounded-full shadow-sm active:bg-green-100 transition-colors flex items-center gap-1"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path></svg> คัดลอก</button>
+              <button @click="shareAsImage()" class="text-[10px] bg-blue-500 text-white px-3 py-1.5 rounded-full shadow-sm active:bg-blue-600 transition-colors flex items-center gap-1"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg> แชร์ภาพ</button>
+            </div>
+          </div>
+          <div class="flex justify-around">
+            <template x-for="num in result?.prediction">
+              <div class="flex flex-col items-center">
+                <span class="text-2xl font-bold text-slate-700 bg-white w-12 h-12 flex items-center justify-center rounded-full shadow-md border border-slate-100 mb-1" x-text="num"></span>
+                <div class="w-1 h-1 bg-green-400 rounded-full"></div>
+              </div>
             </template>
           </div>
         </div>
-        
-        <div class="glass p-4 rounded-3xl shadow-sm border border-white">
-          <h3 class="text-xs font-bold text-slate-700 mb-3 flex items-center gap-1">🤟 ชุด 3 ตัว (เต็ง-โต๊ด)</h3>
-          <div class="flex flex-wrap gap-1.5">
-            <template x-for="c in combos.three">
-              <span class="text-[11px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-100 px-2.5 py-1 rounded-lg shadow-sm" x-text="c"></span>
-            </template>
+
+        <div class="mt-4 grid grid-cols-2 gap-3">
+          <div class="glass p-4 rounded-3xl shadow-sm border border-white">
+            <h3 class="text-[11px] font-bold text-slate-700 mb-3 flex items-center gap-1">✌️ ชุด 2 ตัว (บน-ล่าง)</h3>
+            <div class="flex flex-wrap gap-1.5">
+              <template x-for="c in combos.two">
+                <span class="text-[11px] font-bold text-slate-600 bg-white border border-slate-200 px-2.5 py-1 rounded-lg shadow-sm" x-text="c"></span>
+              </template>
+            </div>
+          </div>
+          
+          <div class="glass p-4 rounded-3xl shadow-sm border border-white">
+            <h3 class="text-[11px] font-bold text-slate-700 mb-3 flex items-center gap-1">🤟 ชุด 3 ตัว (เต็ง-โต๊ด)</h3>
+            <div class="flex flex-wrap gap-1.5">
+              <template x-for="c in combos.three">
+                <span class="text-[11px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-100 px-2.5 py-1 rounded-lg shadow-sm" x-text="c"></span>
+              </template>
+            </div>
           </div>
         </div>
       </div>
@@ -124,157 +137,79 @@
     <div x-show="tab === 'ความแม่น'" x-cloak x-transition>
       <div class="glass p-5 rounded-3xl shadow-sm border border-white mb-4">
         <h2 class="font-bold text-slate-700 mb-1">⚙️ ปรับความแม่น Engine</h2>
-        <p class="text-[10px] text-slate-400 mb-4 font-light">เลือกโหมดคณิตศาสตร์เพื่อประมวลผล 75 สูตร</p>
         <div class="space-y-3">
           <template x-for="mode in engines">
-            <div @click="form.engineMode = mode.id" 
-                 :class="form.engineMode === mode.id ? 'border-green-500 bg-green-50 ring-2 ring-green-100' : 'border-slate-100 bg-white'"
-                 class="p-4 border-2 rounded-2xl cursor-pointer transition-all relative overflow-hidden">
-              <div class="flex justify-between items-start">
-                <div>
-                  <h3 class="font-bold text-sm text-slate-700" x-text="mode.title"></h3>
-                  <p class="text-[9px] text-slate-400 mt-1" x-text="mode.desc"></p>
-                </div>
-                <div x-show="form.engineMode === mode.id" class="text-green-500">
-                  <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
-                </div>
-              </div>
+            <div @click="form.engineMode = mode.id" :class="form.engineMode === mode.id ? 'border-green-500 bg-green-50 ring-2 ring-green-100' : 'border-slate-100 bg-white'" class="p-4 border-2 rounded-2xl cursor-pointer transition-all relative overflow-hidden">
+              <h3 class="font-bold text-sm text-slate-700" x-text="mode.title"></h3>
             </div>
           </template>
         </div>
       </div>
-
       <div class="glass p-5 rounded-3xl shadow-sm border border-white">
         <div class="flex justify-between items-center mb-4">
           <h2 class="font-bold text-slate-700">🔢 ควบคุมเลข 0-9</h2>
-          <button @click="resetNumStates()" class="text-[10px] bg-slate-100 text-slate-500 px-3 py-1 rounded-full hover:bg-slate-200 transition-colors">รีเซ็ต</button>
+          <button @click="resetNumStates()" class="text-[10px] bg-slate-100 text-slate-500 px-3 py-1 rounded-full">รีเซ็ต</button>
         </div>
         <div class="grid grid-cols-5 gap-2">
           <template x-for="i in [0,1,2,3,4,5,6,7,8,9]">
-            <button @click="toggleState(i)" 
-                    :class="getStateClass(i)" 
-                    class="h-12 rounded-xl font-bold transition-all relative border shadow-sm flex items-center justify-center text-lg">
+            <button @click="toggleState(i)" :class="getStateClass(i)" class="h-12 rounded-xl font-bold transition-all relative border shadow-sm">
               <span x-text="i"></span>
               <div x-show="form.numStates[i] === 'force'" class="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></div>
               <div x-show="form.numStates[i] === 'ban'" class="absolute -top-1 -right-1 w-3 h-3 bg-rose-500 rounded-full border-2 border-white"></div>
             </button>
           </template>
         </div>
-        <div class="mt-4 flex gap-4 text-[9px] justify-center font-bold text-slate-400">
-          <div class="flex items-center gap-1"><span class="w-2 h-2 bg-green-500 rounded-full"></span> บังคับ</div>
-          <div class="flex items-center gap-1"><span class="w-2 h-2 bg-rose-500 rounded-full"></span> แบน</div>
-          <div class="flex items-center gap-1"><span class="w-2 h-2 bg-slate-200 rounded-full"></span> ปกติ</div>
-        </div>
       </div>
     </div>
 
     <div x-show="tab === 'ประวัติ'" x-cloak x-transition>
-      <div class="flex justify-between items-center mb-4 px-2">
-        <h2 class="font-bold text-slate-700">📝 รายการวิเคราะห์ล่าสุด</h2>
-        <button @click="fetchHistory()" class="text-[10px] text-blue-500 bg-blue-50 px-3 py-1 rounded-full font-bold flex items-center gap-1">
-          <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
-          รีเฟรช
-        </button>
-      </div>
-      
+      <button @click="fetchHistory()" class="text-[10px] text-blue-500 mb-4 bg-blue-50 px-3 py-1 rounded-full">🔄 รีเฟรช</button>
       <div class="space-y-3">
-        <div x-show="loadingHistory" class="text-center text-slate-400 py-10 text-sm flex flex-col items-center gap-2">
-          <div class="animate-bounce font-bold">กำลังดึงข้อมูล...</div>
-        </div>
-        <div x-show="!loadingHistory && history.length === 0" class="text-center text-slate-400 py-10 text-sm italic">ยังไม่มีประวัติการวิเคราะห์</div>
-        
         <template x-for="item in history">
-          <div class="glass p-4 rounded-2xl border border-white shadow-sm flex justify-between items-center hover:scale-[1.02] transition-transform">
-            <div>
-              <div class="flex gap-2 items-center mb-1">
-                <span class="text-xs font-bold text-slate-700" x-text="item.type"></span>
-                <span class="text-[8px] bg-slate-100 text-slate-500 px-2 py-0.5 rounded-full font-bold" x-text="'โหมด ' + item.mode"></span>
-              </div>
-              <p class="text-[9px] text-slate-400 font-light" x-text="item.time"></p>
-            </div>
-            <div class="text-right">
-              <span class="text-sm font-bold text-green-600 bg-green-50 px-3 py-1.5 rounded-xl border border-green-100" x-text="item.result"></span>
-            </div>
+          <div class="glass p-4 rounded-2xl border border-white shadow-sm flex justify-between items-center">
+            <div><span class="text-xs font-bold text-slate-700" x-text="item.type"></span></div>
+            <span class="text-sm font-bold text-green-600 bg-green-50 px-3 py-1.5 rounded-xl border border-green-100" x-text="item.result"></span>
           </div>
         </template>
       </div>
     </div>
-
     <div x-show="tab === 'สถิติ'" x-cloak x-transition>
-      <div class="grid gap-4">
-        <div class="glass p-5 rounded-3xl shadow-sm border border-white">
-          <h2 class="font-bold text-slate-700 mb-1">📈 อัตราความแม่นยำ (Win Rate)</h2>
-          <p class="text-[10px] text-slate-400 mb-6">ความแม่นยำราย Engine ในรอบ 30 วัน</p>
-          <div class="relative h-48 w-full">
-            <canvas id="engineChart"></canvas>
-          </div>
-        </div>
-
-        <div class="glass p-5 rounded-3xl shadow-sm border border-white">
-          <h2 class="font-bold text-slate-700 mb-1">🧩 สัดส่วนสูตรที่เข้าเป้า</h2>
-          <p class="text-[10px] text-slate-400 mb-6">วิเคราะห์จากกลุ่ม 75 สูตรพื้นฐาน</p>
-          <div class="relative h-48 w-full flex justify-center">
-            <canvas id="formulaChart"></canvas>
-          </div>
-        </div>
-      </div>
+      <div class="glass p-5 rounded-3xl mb-4"><canvas id="engineChart" class="h-48 w-full"></canvas></div>
+      <div class="glass p-5 rounded-3xl"><canvas id="formulaChart" class="h-48 w-full"></canvas></div>
     </div>
 
   </main>
 
   <script>
     // ⚠️⚠️ วาง URL ของ Google Apps Script ของคุณตรงนี้ ⚠️⚠️
-    const API_URL = "https://script.google.com/macros/s/AKfycbzphIfLGfk0EBeGpaMLkGwY1oM4-lxOoH0mZjckg7I7xg9KkSN_FLVFU6U3MixTNlW2/exec";
+    const API_URL = "วาง_URL_ที่ก๊อปมาตรงนี้";
     
     function lottoApp() {
       return {
-        tab: 'วิเคราะห์',
-        loading: false,
-        loadingHistory: false,
-        result: null,
-        history: [],
-        chartsRendered: false,
+        tab: 'วิเคราะห์', loading: false, loadingHistory: false, result: null, history: [], chartsRendered: false,
         toast: { show: false, msg: '', icon: '' },
-        combos: { two: [], three: [] }, // ✅ ตัวแปรเก็บชุดตัวเลข
+        combos: { two: [], three: [] },
         engines: [
-          { id: 'A', title: 'A — ความถี่สูงสุด', desc: 'เน้นนับจำนวนครั้งที่เลขติด Top 5 จากทุกสูตร' },
-          { id: 'B', title: 'B — ลำดับคะแนน', desc: 'ให้คะแนนตามอันดับ 1-5 รวมผลเพื่อความสมดุล' },
-          { id: 'C', title: 'C — คะแนนดิบ', desc: 'ใช้คะแนนรวม 0-100 จากทุกสูตรหาเลขที่เด่นที่สุด' }
+          { id: 'A', title: 'A — ความถี่สูงสุด' }, { id: 'B', title: 'B — ลำดับคะแนน' }, { id: 'C', title: 'C — คะแนนดิบ' }
         ],
         form: {
-          lotteryType: 'รัฐบาลไทย',
-          inputNumbers: '',
-          engineMode: 'A',
+          lotteryType: 'รัฐบาลไทย', inputNumbers: '', engineMode: 'A',
           numStates: { '0':'normal', '1':'normal', '2':'normal', '3':'normal', '4':'normal', '5':'normal', '6':'normal', '7':'normal', '8':'normal', '9':'normal' }
         },
 
         initApp() { this.fetchHistory(); },
-
-        switchTab(t) {
-          this.tab = t;
-          if (t === 'ประวัติ') this.fetchHistory();
-          if (t === 'สถิติ') this.renderCharts();
-        },
-
+        switchTab(t) { this.tab = t; if (t === 'ประวัติ') this.fetchHistory(); if (t === 'สถิติ') this.renderCharts(); },
         toggleState(i) {
-          const current = this.form.numStates[i];
-          if (current === 'normal') this.form.numStates[i] = 'force';
-          else if (current === 'force') this.form.numStates[i] = 'ban';
-          else this.form.numStates[i] = 'normal';
+          const c = this.form.numStates[i];
+          this.form.numStates[i] = c === 'normal' ? 'force' : (c === 'force' ? 'ban' : 'normal');
         },
-
         getStateClass(i) {
-          const state = this.form.numStates[i];
-          if (state === 'force') return 'bg-green-50 border-green-500 text-green-700 ring-2 ring-green-100 shadow-inner';
-          if (state === 'ban') return 'bg-rose-50 border-rose-500 text-rose-700 opacity-50 shadow-inner';
-          return 'bg-white border-slate-100 text-slate-600 hover:border-green-200';
+          const s = this.form.numStates[i];
+          return s === 'force' ? 'bg-green-50 border-green-500 text-green-700 shadow-inner' : (s === 'ban' ? 'bg-rose-50 border-rose-500 text-rose-700 opacity-50' : 'bg-white text-slate-600');
         },
-
         resetNumStates() {
            this.form.numStates = { '0':'normal', '1':'normal', '2':'normal', '3':'normal', '4':'normal', '5':'normal', '6':'normal', '7':'normal', '8':'normal', '9':'normal' };
-           this.showToast('รีเซ็ตล็อคเลขทั้งหมดแล้ว', '✅');
         },
-
         showToast(msg, icon = '🔔') {
           this.toast = { show: true, msg, icon };
           setTimeout(() => { this.toast.show = false; }, 3000);
@@ -282,26 +217,67 @@
 
         copyResult() {
           if (!this.result) return;
-          // ก็อปทั้ง 5 ตัวเด่น และชุดวิน
-          let text = `เลขเด่น ${this.form.lotteryType}: ${this.result.prediction.join('-')}\n`;
-          text += `2 ตัว: ${this.combos.two.join(', ')}\n`;
-          text += `3 ตัว: ${this.combos.three.join(', ')}`;
-          
-          navigator.clipboard.writeText(text).then(() => {
-            this.showToast('คัดลอกตัวเลขเรียบร้อย', '📋');
-          });
+          let text = `✨ เลขเด่น ${this.form.lotteryType}: ${this.result.prediction.join('-')}\n✌️ 2 ตัว: ${this.combos.two.join(', ')}\n🤟 3 ตัว: ${this.combos.three.join(', ')}`;
+          navigator.clipboard.writeText(text).then(() => this.showToast('คัดลอกตัวเลขเรียบร้อย', '📋'));
         },
 
-        // ✅ ฟังก์ชันคณิตศาสตร์จับคู่วินเลข (Combinatorics)
+        // ✅ ฟังก์ชันแคปหน้าจอเป็นรูปภาพ (html2canvas)
+        async shareAsImage() {
+          this.showToast('กำลังประมวลผลรูปภาพ...', '📸');
+          
+          // โชว์ลายน้ำก่อนแคปรูป
+          const watermark = document.getElementById('watermark');
+          watermark.classList.remove('hidden');
+
+          const captureArea = document.getElementById('capture-area');
+          
+          try {
+            const canvas = await html2canvas(captureArea, {
+              scale: 2, // ความคมชัด x2
+              backgroundColor: '#f0f4f8',
+              useCORS: true
+            });
+            
+            const dataUrl = canvas.toDataURL('image/jpeg', 0.9);
+            
+            // ปิดลายน้ำกลับไปเหมือนเดิม
+            watermark.classList.add('hidden');
+
+            // ลองใช้ Web Share API (สำหรับมือถือ)
+            if (navigator.share) {
+               try {
+                 const blob = await (await fetch(dataUrl)).blob();
+                 const file = new File([blob], `LOTTOAI-${this.form.lotteryType}.jpg`, { type: 'image/jpeg' });
+                 await navigator.share({
+                   title: 'ผลวิเคราะห์ LOTTOAI',
+                   files: [file]
+                 });
+                 return; // จบการทำงานถ้า Share สำเร็จ
+               } catch (err) {
+                 console.log("Share API failed, falling back to download");
+               }
+            }
+            
+            // ถ้าไม่ใช่เว็บมือถือ หรือ Share ไม่สำเร็จ ให้ดาวน์โหลดแทน
+            const link = document.createElement('a');
+            link.download = `LOTTOAI-${this.form.lotteryType}.jpg`;
+            link.href = dataUrl;
+            link.click();
+            this.showToast('บันทึกรูปภาพเรียบร้อย', '✅');
+            
+          } catch (error) {
+            watermark.classList.add('hidden');
+            this.showToast('เกิดข้อผิดพลาดในการสร้างภาพ', '❌');
+            console.error(error);
+          }
+        },
+
         generateCombos(array, size) {
           let result = [];
           const combine = (prefix, arr) => {
             for (let i = 0; i < arr.length; i++) {
-              if (prefix.length + 1 === size) {
-                result.push(prefix + arr[i]);
-              } else {
-                combine(prefix + arr[i], arr.slice(i + 1));
-              }
+              if (prefix.length + 1 === size) result.push(prefix + arr[i]);
+              else combine(prefix + arr[i], arr.slice(i + 1));
             }
           };
           combine('', array);
@@ -310,77 +286,45 @@
 
         async fetchHistory() {
           if (!API_URL || API_URL.includes("วาง_URL")) return;
-          this.loadingHistory = true;
           try {
             const response = await fetch(`${API_URL}?action=getHistory`);
-            const data = await response.json();
-            this.history = data;
-          } catch (error) {
-            console.error("Fetch Error:", error);
-          } finally {
-            this.loadingHistory = false;
-          }
+            this.history = await response.json();
+          } catch (error) {}
         },
 
         async analyze() {
-          if (!API_URL || API_URL.includes("วาง_URL")) {
-            this.showToast('กรุณาใส่ API_URL ในโค้ดด้วยครับ', '❌'); return;
-          }
-          if (!this.form.inputNumbers) {
-            this.showToast('กรุณากรอกเลขงวดล่าสุดก่อนครับ', '⚠️'); return;
-          }
-          
-          this.loading = true;
-          this.result = null;
-          this.combos = { two: [], three: [] }; // ล้างค่าชุดเดิม
-          
+          if (!this.form.inputNumbers) return this.showToast('กรุณากรอกเลขงวดล่าสุดก่อนครับ', '⚠️');
+          this.loading = true; this.result = null; this.combos = { two: [], three: [] };
           try {
             const response = await fetch(API_URL, {
               method: 'POST',
               headers: { "Content-Type": "text/plain;charset=utf-8" },
               body: JSON.stringify({ action: 'analyze', data: this.form })
             });
-            
             const data = await response.json();
             this.result = data;
-            
-            // ✅ นำผลลัพธ์ 5 ตัว มาสร้างชุด 2 ตัว และ 3 ตัวทันที
             if(data.prediction && data.prediction.length >= 3) {
                this.combos.two = this.generateCombos(data.prediction, 2);
                this.combos.three = this.generateCombos(data.prediction, 3);
             }
-
             this.showToast(data.message, '✅');
             this.fetchHistory(); 
-            
-          } catch (error) {
-            this.showToast('เชื่อมต่อล้มเหลว ตรวจสอบการตั้งค่า API', '❌');
-          } finally {
-            this.loading = false;
-          }
+          } catch (error) { this.showToast('เชื่อมต่อล้มเหลว ตรวจสอบการตั้งค่า API', '❌'); } 
+          finally { this.loading = false; }
         },
 
         renderCharts() {
           if (this.chartsRendered) return;
           this.chartsRendered = true;
           setTimeout(() => {
-            const chartConfig = { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } };
-            const ctx1 = document.getElementById('engineChart');
-            if (ctx1) {
-              new Chart(ctx1.getContext('2d'), {
-                type: 'bar',
-                data: { labels: ['โหมด A', 'โหมด B', 'โหมด C'], datasets: [{ data: [78, 92, 65], backgroundColor: ['#34d399', '#3b82f6', '#fb923c'], borderRadius: 10 }] },
-                options: chartConfig
-              });
-            }
-            const ctx2 = document.getElementById('formulaChart');
-            if (ctx2) {
-              new Chart(ctx2.getContext('2d'), {
-                type: 'doughnut',
-                data: { labels: ['บวกคงที่', 'คูณทะลวง', 'บวกไขว้', 'เลขเงา'], datasets: [{ data: [35, 20, 40, 5], backgroundColor: ['#10b981', '#3b82f6', '#f59e0b', '#ec4899'], borderWidth: 0 }] },
-                options: { ...chartConfig, plugins: { legend: { display: true, position: 'bottom', labels: { boxWidth: 10, font: { size: 10 } } } }, cutout: '75%' }
-              });
-            }
+            new Chart(document.getElementById('engineChart').getContext('2d'), {
+              type: 'bar', data: { labels: ['A', 'B', 'C'], datasets: [{ data: [78, 92, 65], backgroundColor: ['#34d399', '#3b82f6', '#fb923c'], borderRadius: 10 }] },
+              options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+            });
+            new Chart(document.getElementById('formulaChart').getContext('2d'), {
+              type: 'doughnut', data: { labels: ['บวก', 'คูณ', 'ไขว้', 'เลขเงา'], datasets: [{ data: [35, 20, 40, 5], backgroundColor: ['#10b981', '#3b82f6', '#f59e0b', '#ec4899'], borderWidth: 0 }] },
+              options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: true, position: 'bottom' } }, cutout: '75%' }
+            });
           }, 100);
         }
       }

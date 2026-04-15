@@ -26,6 +26,9 @@
     @keyframes slideUp { from { transform: translateY(100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
     .toast-enter { animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
     .btn-glow { box-shadow: 0 0 20px rgba(16, 185, 129, 0.4); }
+    
+    /* สไตล์สำหรับจุด Bullet สีดำ เหมือนในตัวอย่าง */
+    .bullet-list li::marker { color: #1e293b; font-size: 1.2em; }
   </style>
 </head>
 <body x-data="lottoApp()" x-init="initApp()" class="pb-24 bg-premium min-h-screen flex flex-col">
@@ -67,19 +70,8 @@
     
     <div x-show="tab === 'วิเคราะห์'" x-cloak x-transition.opacity.duration.300ms>
       <div class="glass-card p-5 rounded-[2rem] mb-6">
-        <div class="flex justify-between items-center mb-2">
-          <label class="text-[11px] font-extrabold text-slate-400 uppercase tracking-wider">เลือกรายการหวย</label>
-          <div class="bg-emerald-50 px-2 py-1 rounded-lg border border-emerald-100 flex items-center gap-1">
-            <span class="text-[10px] text-emerald-600 font-bold" x-text="'กำลังวัน: ' + currentDayName"></span>
-          </div>
-        </div>
-        <select x-model="form.lotteryType" class="w-full p-4 rounded-2xl border-0 bg-slate-50 outline-none font-bold text-slate-700 text-lg shadow-inner focus:ring-2 focus:ring-emerald-400 transition-all cursor-pointer">
-          <option value="รัฐบาลไทย">🇹🇭 รัฐบาลไทย</option>
-          <option value="ลาวพัฒนา">🇱🇦 ลาวพัฒนา</option>
-          <option value="ฮานอยอาเซียน">🇻🇳 ฮานอยอาเซียน</option>
-          <option value="ฮานอยพิเศษ">🇻🇳 ฮานอยพิเศษ</option>
-          <option value="หวยออมสิน">🏦 หวยออมสิน</option>
-        </select>
+        <div class="flex justify-between items-center mb-2"><label class="text-[11px] font-extrabold text-slate-400 uppercase tracking-wider">เลือกรายการหวย</label><div class="bg-emerald-50 px-2 py-1 rounded-lg border border-emerald-100 flex items-center gap-1"><span class="text-[10px] text-emerald-600 font-bold" x-text="'กำลังวัน: ' + currentDayName"></span></div></div>
+        <select x-model="form.lotteryType" class="w-full p-4 rounded-2xl border-0 bg-slate-50 outline-none font-bold text-slate-700 text-lg shadow-inner focus:ring-2 focus:ring-emerald-400 transition-all cursor-pointer"><option value="รัฐบาลไทย">🇹🇭 รัฐบาลไทย</option><option value="ลาวพัฒนา">🇱🇦 ลาวพัฒนา</option><option value="ฮานอยอาเซียน">🇻🇳 ฮานอยอาเซียน</option><option value="หวยออมสิน">🏦 หวยออมสิน</option></select>
       </div>
 
       <div class="glass-card p-8 rounded-[2rem] text-center mb-6 relative overflow-hidden group">
@@ -91,43 +83,29 @@
       <div class="flex gap-3 mb-6">
         <button @click="analyze()" :disabled="loading" class="flex-[3] bg-gradient-to-r from-emerald-500 to-teal-500 text-white py-4.5 rounded-2xl font-bold btn-glow active:scale-95 transition-all duration-200 flex justify-center items-center disabled:opacity-70 disabled:scale-100">
           <span x-show="!loading" class="text-lg">🎯 เริ่มวิเคราะห์</span>
-          <span x-show="loading" class="flex items-center gap-2">
-            <svg class="animate-spin h-5 w-5 text-white" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-            AI กำลังประมวลผล...
-          </span>
+          <span x-show="loading" class="flex items-center gap-2"><svg class="animate-spin h-5 w-5 text-white" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> AI กำลังประมวลผล...</span>
         </button>
         <button @click="form.inputNumbers = ''; result = null; combos = {two:[], three:[]}" class="flex-1 bg-white text-slate-500 py-4.5 rounded-2xl font-bold shadow-sm border border-slate-200 hover:bg-slate-50 hover:text-rose-500 transition-colors">ล้าง</button>
       </div>
 
       <div id="capture-area" x-show="result" x-transition.opacity.duration.500ms class="bg-[#f4f7f6] -mx-4 px-4 pb-6 pt-2 rounded-t-3xl">
         <div id="watermark" class="hidden text-center mb-6 mt-4">
-          <div class="flex justify-center items-center gap-2 mb-1">
-            <div class="w-6 h-6 bg-emerald-500 rounded-lg flex items-center justify-center text-white font-black text-sm">L</div>
-            <h2 class="text-xl font-black text-slate-800">LOTTOAI PRO</h2>
-          </div>
+          <div class="flex justify-center items-center gap-2 mb-1"><div class="w-6 h-6 bg-emerald-500 rounded-lg flex items-center justify-center text-white font-black text-sm">L</div><h2 class="text-xl font-black text-slate-800">LOTTOAI PRO</h2></div>
           <p class="text-xs text-slate-500 font-medium" x-text="'ผลวิเคราะห์ ' + form.lotteryType + ' (สูตรกำลังวัน: ' + currentDayName + ')'"></p>
         </div>
         
         <div class="bg-white rounded-[2rem] p-6 shadow-xl shadow-emerald-900/5 border border-emerald-50 mb-4 relative overflow-hidden">
           <div class="absolute -right-6 -top-6 w-24 h-24 bg-gradient-to-br from-emerald-100 to-teal-50 rounded-full blur-2xl opacity-70 pointer-events-none"></div>
-
           <div class="flex justify-between items-center mb-6 relative z-10">
-            <div class="flex items-center gap-2">
-              <span class="text-xl">✨</span>
-              <p class="text-sm text-emerald-800 font-extrabold">เลขเด่น AI แนะนำ</p>
-            </div>
+            <div class="flex items-center gap-2"><span class="text-xl">✨</span><p class="text-sm text-emerald-800 font-extrabold">เลขเด่น AI แนะนำ</p></div>
             <div class="flex gap-2" data-html2canvas-ignore>
               <button @click="copyResult()" class="text-[10px] bg-slate-50 hover:bg-slate-100 text-slate-600 px-3 py-2 rounded-xl font-bold transition-colors flex items-center gap-1">📋 คัดลอก</button>
               <button @click="shareAsImage()" class="text-[10px] bg-emerald-100 hover:bg-emerald-200 text-emerald-700 px-3 py-2 rounded-xl font-bold transition-colors flex items-center gap-1">🖼️ แชร์ภาพ</button>
             </div>
           </div>
-          
           <div class="flex justify-between relative z-10 px-2">
             <template x-for="num in result?.prediction">
-              <div class="flex flex-col items-center">
-                <span class="text-3xl font-black text-slate-700 bg-slate-50 w-14 h-14 flex items-center justify-center rounded-2xl shadow-sm border border-slate-100 mb-2" x-text="num"></span>
-                <div class="w-1.5 h-1.5 bg-emerald-400 rounded-full shadow-sm shadow-emerald-400"></div>
-              </div>
+              <div class="flex flex-col items-center"><span class="text-3xl font-black text-slate-700 bg-slate-50 w-14 h-14 flex items-center justify-center rounded-2xl shadow-sm border border-slate-100 mb-2" x-text="num"></span><div class="w-1.5 h-1.5 bg-emerald-400 rounded-full shadow-sm shadow-emerald-400"></div></div>
             </template>
           </div>
         </div>
@@ -135,135 +113,91 @@
         <div class="grid grid-cols-2 gap-4">
           <div class="bg-white p-5 rounded-3xl shadow-lg shadow-slate-200/50 border border-white">
             <h3 class="text-xs font-extrabold text-slate-700 mb-4 flex items-center gap-1.5"><span class="bg-amber-100 p-1 rounded-md text-[10px]">✌️</span> 2 ตัว (บน-ล่าง)</h3>
-            <div class="flex flex-wrap gap-2">
-              <template x-for="c in combos.two">
-                <span class="text-xs font-bold text-slate-600 bg-slate-50 border border-slate-100 px-3 py-1.5 rounded-xl" x-text="c"></span>
-              </template>
-            </div>
+            <div class="flex flex-wrap gap-2"><template x-for="c in combos.two"><span class="text-xs font-bold text-slate-600 bg-slate-50 border border-slate-100 px-3 py-1.5 rounded-xl" x-text="c"></span></template></div>
           </div>
-          
           <div class="bg-emerald-500 p-5 rounded-3xl shadow-lg shadow-emerald-500/20 border border-emerald-400 text-white relative overflow-hidden">
             <div class="absolute -right-4 -bottom-4 w-20 h-20 bg-white/10 rounded-full blur-xl pointer-events-none"></div>
             <h3 class="text-xs font-extrabold mb-4 flex items-center gap-1.5 relative z-10"><span class="bg-emerald-400 p-1 rounded-md text-[10px]">🤟</span> 3 ตัว (เต็ง-โต๊ด)</h3>
-            <div class="flex flex-wrap gap-2 relative z-10">
-              <template x-for="c in combos.three">
-                <span class="text-xs font-bold text-emerald-900 bg-white shadow-sm px-3 py-1.5 rounded-xl" x-text="c"></span>
-              </template>
-            </div>
+            <div class="flex flex-wrap gap-2 relative z-10"><template x-for="c in combos.three"><span class="text-xs font-bold text-emerald-900 bg-white shadow-sm px-3 py-1.5 rounded-xl" x-text="c"></span></template></div>
           </div>
         </div>
       </div>
     </div>
 
     <div x-show="tab === 'ทำนายฝัน'" x-cloak x-transition.opacity.duration.300ms>
-      <div class="bg-gradient-to-b from-indigo-900 to-slate-800 p-8 rounded-[2rem] shadow-xl text-white relative overflow-hidden">
-        <div class="absolute top-4 right-6 text-2xl opacity-20">✨</div>
-        <div class="absolute bottom-10 left-4 text-xl opacity-10">⭐</div>
-        <h2 class="text-2xl font-black mb-2 flex items-center gap-2">🔮 ถอดรหัสฝัน</h2>
-        <p class="text-xs text-indigo-200 mb-6 font-light">วิเคราะห์คีย์เวิร์ดความฝัน แปลงเป็นตัวเลขมงคล</p>
-        <textarea x-model="dreamText" rows="3" class="w-full p-5 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 outline-none text-white placeholder-indigo-200/50 shadow-inner mb-6 text-lg focus:bg-white/20 transition-colors" placeholder="เมื่อคืนคุณฝันเห็นอะไร..."></textarea>
-        <button @click="interpretDream()" class="w-full bg-gradient-to-r from-indigo-500 to-purple-500 text-white py-4 rounded-2xl font-bold shadow-lg shadow-indigo-500/30 active:scale-95 transition-all text-lg">เริ่มถอดรหัส</button>
-        <div x-show="dreamResult.length > 0" x-transition class="mt-8 bg-white/5 rounded-2xl p-6 border border-white/10 backdrop-blur-md">
-          <p class="text-xs text-indigo-200 mb-4 text-center font-bold tracking-widest">เลขเด่นจากความฝัน</p>
-          <div class="flex justify-center gap-4">
-            <template x-for="num in dreamResult">
-              <span class="text-4xl font-black text-white bg-white/10 w-20 h-20 flex items-center justify-center rounded-2xl border border-white/30 shadow-[0_0_15px_rgba(255,255,255,0.2)]" x-text="num"></span>
-            </template>
-          </div>
+      <div class="glass-card p-6 rounded-[2rem] mb-6">
+        <div class="flex items-center gap-2 mb-2">
+          <span class="text-2xl">💭</span>
+          <h2 class="text-xl font-black text-slate-800">ค้นหาเลขเด็ดจากฝัน</h2>
         </div>
+        <p class="text-xs text-slate-500 mb-5 font-medium">พิมพ์สิ่งที่เจอในฝัน เช่น "ฝันเห็นงู", "เล่นขี้", "คนตาย"</p>
+        
+        <div class="relative group mb-5">
+          <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none"><svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg></div>
+          <input type="text" x-model="dreamText" @keyup.enter="interpretDream()" class="w-full pl-12 pr-4 py-4 rounded-2xl border-0 bg-slate-50 outline-none text-slate-700 shadow-inner focus:ring-2 focus:ring-emerald-400 transition-all font-bold placeholder-slate-300" placeholder="พิมพ์ความฝันของคุณที่นี่...">
+        </div>
+        
+        <button @click="interpretDream()" class="w-full bg-slate-800 text-white py-4 rounded-2xl font-bold shadow-lg shadow-slate-800/20 active:scale-95 transition-all text-lg">
+          🔍 ถอดรหัสคำทำนาย
+        </button>
+      </div>
+
+      <div x-show="dreamData" x-transition.opacity.duration.500ms class="bg-white p-6 rounded-[2rem] shadow-xl shadow-slate-200/50 border border-slate-100">
+        <h2 class="text-xl font-black text-slate-800 mb-6 border-b-2 border-emerald-100 pb-3 inline-block">สรุปคำทำนายและเลขเด็ด</h2>
+        
+        <ul class="space-y-5 bullet-list list-disc list-inside ml-1">
+          <li class="pl-2">
+            <span class="font-extrabold text-slate-800 text-[15px]">คำทำนาย: </span>
+            <span class="text-[14.5px] text-slate-600 leading-relaxed" x-text="dreamData?.meaning"></span>
+          </li>
+          <li class="pl-2">
+            <span class="font-extrabold text-slate-800 text-[15px]">เลขเด็ดแม่นๆ: </span>
+            <span class="text-[16px] font-black tracking-widest text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md" x-text="dreamData?.mainNumbers"></span>
+          </li>
+          <li class="pl-2">
+            <span class="font-extrabold text-slate-800 text-[15px]">เลขรอง: </span>
+            <span class="text-[15px] font-bold tracking-widest text-slate-600" x-text="dreamData?.secondaryNumbers"></span>
+          </li>
+          <li class="pl-2">
+            <span class="font-extrabold text-slate-800 text-[15px]">เลขชุด 3 ตัว: </span>
+            <span class="text-[15px] font-bold tracking-widest text-emerald-600" x-text="dreamData?.threeDigits"></span>
+          </li>
+          <li class="pl-2">
+            <span class="font-extrabold text-slate-800 text-[15px]">เลขชุด 2 ตัว: </span>
+            <span class="text-[15px] font-bold tracking-widest text-slate-600" x-text="dreamData?.twoDigits"></span>
+          </li>
+        </ul>
+
+        <button @click="copyDream()" class="mt-8 w-full bg-slate-50 hover:bg-emerald-50 text-slate-600 hover:text-emerald-700 py-3.5 rounded-2xl font-bold transition-colors flex items-center justify-center gap-2 border border-slate-200">
+          📋 คัดลอกคำทำนายและเลขเด็ด
+        </button>
       </div>
     </div>
 
     <div x-show="tab === 'ความแม่น'" x-cloak x-transition.opacity.duration.300ms>
       <div class="glass-card p-6 rounded-[2rem] mb-6">
         <h2 class="font-black text-slate-800 mb-1 text-lg">⚙️ ปรับโหมด Engine</h2>
-        <p class="text-[11px] text-slate-400 mb-5 font-medium">สลับสมองกล AI เพื่อประมวลผล 75 สูตรหลังบ้าน</p>
-        <div class="space-y-3">
-          <template x-for="mode in engines">
-            <div @click="form.engineMode = mode.id" 
-                 :class="form.engineMode === mode.id ? 'border-emerald-500 bg-emerald-50 shadow-md shadow-emerald-100' : 'border-slate-100 bg-white hover:border-emerald-200'"
-                 class="p-4 border-2 rounded-2xl cursor-pointer transition-all relative overflow-hidden group">
-              <div class="flex justify-between items-center">
-                <div>
-                  <h3 class="font-extrabold text-sm text-slate-700 group-hover:text-emerald-700 transition-colors" x-text="mode.title"></h3>
-                  <p class="text-[10px] text-slate-500 mt-1" x-text="mode.desc"></p>
-                </div>
-                <div x-show="form.engineMode === mode.id" class="text-emerald-500 bg-white p-1 rounded-full shadow-sm">
-                  <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
-                </div>
-              </div>
-            </div>
-          </template>
+        <div class="space-y-3 mt-4">
+          <template x-for="mode in engines"><div @click="form.engineMode = mode.id" :class="form.engineMode === mode.id ? 'border-emerald-500 bg-emerald-50 shadow-md shadow-emerald-100' : 'border-slate-100 bg-white hover:border-emerald-200'" class="p-4 border-2 rounded-2xl cursor-pointer transition-all relative overflow-hidden group"><div class="flex justify-between items-center"><div><h3 class="font-extrabold text-sm text-slate-700 group-hover:text-emerald-700 transition-colors" x-text="mode.title"></h3><p class="text-[10px] text-slate-500 mt-1" x-text="mode.desc"></p></div><div x-show="form.engineMode === mode.id" class="text-emerald-500 bg-white p-1 rounded-full shadow-sm"><svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg></div></div></div></template>
         </div>
       </div>
-
       <div class="glass-card p-6 rounded-[2rem]">
-        <div class="flex justify-between items-center mb-5">
-          <div>
-            <h2 class="font-black text-slate-800 text-lg">🔢 บังคับ / แบน ตัวเลข</h2>
-            <p class="text-[10px] text-slate-400 font-medium">ล็อกเลขที่ชอบ หรือตัดเลขที่ไม่ชอบ</p>
-          </div>
-          <button @click="resetNumStates()" class="text-xs font-bold bg-slate-100 text-slate-500 px-4 py-2 rounded-xl hover:bg-slate-200 transition-colors active:scale-95">รีเซ็ต</button>
-        </div>
+        <div class="flex justify-between items-center mb-5"><div><h2 class="font-black text-slate-800 text-lg">🔢 บังคับ / แบน ตัวเลข</h2></div><button @click="resetNumStates()" class="text-xs font-bold bg-slate-100 text-slate-500 px-4 py-2 rounded-xl hover:bg-slate-200">รีเซ็ต</button></div>
         <div class="grid grid-cols-5 gap-3">
-          <template x-for="i in [0,1,2,3,4,5,6,7,8,9]">
-            <button @click="toggleState(i)" :class="getStateClass(i)" class="h-14 rounded-2xl font-black transition-all duration-200 relative shadow-sm flex items-center justify-center text-xl">
-              <span x-text="i"></span>
-              <div x-show="form.numStates[i] === 'force'" class="absolute -top-1.5 -right-1.5 w-4 h-4 bg-emerald-500 rounded-full border-2 border-white shadow-sm flex items-center justify-center"><svg class="w-2 h-2 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg></div>
-              <div x-show="form.numStates[i] === 'ban'" class="absolute -top-1.5 -right-1.5 w-4 h-4 bg-rose-500 rounded-full border-2 border-white shadow-sm flex items-center justify-center"><svg class="w-2 h-2 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"></path></svg></div>
-            </button>
-          </template>
-        </div>
-        <div class="mt-6 flex gap-4 text-[10px] justify-center font-bold text-slate-500 bg-white p-3 rounded-xl border border-slate-100">
-          <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 bg-emerald-500 rounded-full"></span> บังคับ</div>
-          <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 bg-rose-500 rounded-full"></span> แบน</div>
-          <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 bg-slate-200 rounded-full border border-slate-300"></span> ปกติ</div>
+          <template x-for="i in [0,1,2,3,4,5,6,7,8,9]"><button @click="toggleState(i)" :class="getStateClass(i)" class="h-14 rounded-2xl font-black transition-all duration-200 relative shadow-sm flex items-center justify-center text-xl"><span x-text="i"></span><div x-show="form.numStates[i] === 'force'" class="absolute -top-1.5 -right-1.5 w-4 h-4 bg-emerald-500 rounded-full border-2 border-white shadow-sm flex items-center justify-center"><svg class="w-2 h-2 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg></div><div x-show="form.numStates[i] === 'ban'" class="absolute -top-1.5 -right-1.5 w-4 h-4 bg-rose-500 rounded-full border-2 border-white shadow-sm flex items-center justify-center"><svg class="w-2 h-2 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"></path></svg></div></button></template>
         </div>
       </div>
     </div>
 
     <div x-show="tab === 'ประวัติ'" x-cloak x-transition.opacity.duration.300ms>
-      <div class="flex justify-between items-center mb-5 px-2">
-        <h2 class="font-black text-slate-800 text-lg">📝 ประวัติล่าสุด</h2>
-        <button @click="fetchHistory()" class="text-xs text-emerald-600 bg-emerald-50 hover:bg-emerald-100 px-4 py-2 rounded-xl font-bold flex items-center gap-1.5 transition-colors"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg> รีเฟรช</button>
-      </div>
-      <div class="space-y-3">
-        <div x-show="loadingHistory" class="glass-card py-12 text-sm flex flex-col items-center justify-center gap-3 rounded-[2rem]">
-          <div class="w-6 h-6 border-4 border-emerald-200 border-t-emerald-500 rounded-full animate-spin"></div>
-          <span class="text-slate-500 font-bold">กำลังซิงค์ข้อมูล...</span>
-        </div>
-        <div x-show="!loadingHistory && history.length === 0" class="glass-card text-center text-slate-400 py-12 text-sm font-medium rounded-[2rem]">ยังไม่มีประวัติการวิเคราะห์ในระบบ</div>
-        <template x-for="item in history">
-          <div class="glass-card p-5 rounded-3xl flex justify-between items-center hover:-translate-y-1 transition-transform duration-200 cursor-default">
-            <div>
-              <div class="flex gap-2 items-center mb-1.5"><span class="text-sm font-black text-slate-800" x-text="item.type"></span><span class="text-[9px] bg-slate-800 text-white px-2 py-0.5 rounded-md font-bold tracking-widest uppercase" x-text="'Engine ' + item.mode"></span></div>
-              <p class="text-[10px] text-slate-400 font-medium" x-text="item.time"></p>
-            </div>
-            <div class="text-right"><span class="text-sm font-black text-emerald-700 bg-emerald-50 px-4 py-2 rounded-xl border border-emerald-100 shadow-sm" x-text="item.result"></span></div>
-          </div>
-        </template>
-      </div>
+      <div class="flex justify-between items-center mb-5 px-2"><h2 class="font-black text-slate-800 text-lg">📝 ประวัติล่าสุด</h2><button @click="fetchHistory()" class="text-xs text-emerald-600 bg-emerald-50 hover:bg-emerald-100 px-4 py-2 rounded-xl font-bold flex items-center gap-1.5">รีเฟรช</button></div>
+      <div class="space-y-3"><template x-for="item in history"><div class="glass-card p-5 rounded-3xl flex justify-between items-center"><div><div class="flex gap-2 items-center mb-1.5"><span class="text-sm font-black text-slate-800" x-text="item.type"></span><span class="text-[9px] bg-slate-800 text-white px-2 py-0.5 rounded-md font-bold uppercase" x-text="'Engine ' + item.mode"></span></div><p class="text-[10px] text-slate-400 font-medium" x-text="item.time"></p></div><div class="text-right"><span class="text-sm font-black text-emerald-700 bg-emerald-50 px-4 py-2 rounded-xl border border-emerald-100 shadow-sm" x-text="item.result"></span></div></div></template></div>
     </div>
 
     <div x-show="tab === 'สถิติ'" x-cloak x-transition.opacity.duration.300ms class="h-full flex flex-col justify-center">
       <div class="grid gap-4">
-        <div class="glass-card p-5 rounded-[1.5rem]">
-          <div class="flex items-center gap-2 mb-1">
-            <span class="bg-emerald-100 p-1.5 rounded-lg text-emerald-600 text-xs">📈</span>
-            <h2 class="font-black text-slate-800 text-base">อัตราความแม่นยำ</h2>
-          </div>
-          <p class="text-[10px] text-slate-400 mb-3 font-medium">Win Rate เปรียบเทียบ 3 Engine (ย้อนหลัง 30 งวด)</p>
-          <div class="relative h-[22vh] min-h-[140px] w-full"><canvas id="engineChart"></canvas></div>
-        </div>
-        
-        <div class="glass-card p-5 rounded-[1.5rem]">
-          <div class="flex items-center gap-2 mb-1">
-            <span class="bg-amber-100 p-1.5 rounded-lg text-amber-600 text-xs">🧩</span>
-            <h2 class="font-black text-slate-800 text-base">สัดส่วนสูตรที่เข้าเป้า</h2>
-          </div>
-          <p class="text-[10px] text-slate-400 mb-3 font-medium">เจาะลึก 75 สูตรหลังบ้านแยกตามหมวดหมู่</p>
-          <div class="relative h-[22vh] min-h-[140px] w-full flex justify-center"><canvas id="formulaChart"></canvas></div>
-        </div>
+        <div class="glass-card p-5 rounded-[1.5rem]"><h2 class="font-black text-slate-800 text-base mb-1">📈 อัตราความแม่นยำ</h2><div class="relative h-[22vh] min-h-[140px] w-full"><canvas id="engineChart"></canvas></div></div>
+        <div class="glass-card p-5 rounded-[1.5rem]"><h2 class="font-black text-slate-800 text-base mb-1">🧩 สัดส่วนสูตรที่เข้าเป้า</h2><div class="relative h-[22vh] min-h-[140px] w-full flex justify-center"><canvas id="formulaChart"></canvas></div></div>
       </div>
     </div>
 
@@ -275,8 +209,10 @@
     
     function lottoApp() {
       return {
-        tab: 'วิเคราะห์', loading: false, loadingHistory: false, result: null, history: [], combos: { two: [], three: [] },
-        toast: { show: false, msg: '', icon: '' }, dreamText: '', dreamResult: [], currentDayName: '', chartsRendered: false,
+        tab: 'ทำนายฝัน', // ตั้งค่าหน้าแรกตอนเปิดแอป
+        loading: false, loadingHistory: false, result: null, history: [], combos: { two: [], three: [] },
+        toast: { show: false, msg: '', icon: '' }, currentDayName: '', chartsRendered: false,
+        dreamText: '', dreamData: null, // เปลี่ยนมารับค่า Object เต็มรูปแบบ
         engines: [
           { id: 'A', title: '⚡ ความถี่สูงสุด (Frequency)', desc: 'นับเลขที่ติด Top 5 บ่อยที่สุด เหมาะกับตัวเลขกระจาย' },
           { id: 'B', title: '🏆 ลำดับคะแนน (Rank Fusion)', desc: 'ให้คะแนนตามอันดับที่ออก สมดุลที่สุดในการใช้งานจริง' },
@@ -291,74 +227,70 @@
         setDayName() { const days = ['อาทิตย์', 'จันทร์', 'อังคาร', 'พุธ', 'พฤหัสบดี', 'ศุกร์', 'เสาร์']; this.currentDayName = days[new Date().getDay()]; },
         switchTab(t) { this.tab = t; if(t === 'ประวัติ') this.fetchHistory(); if(t === 'สถิติ') this.renderCharts(); },
 
+        // ✅ ฟังก์ชันทำนายฝันแบบใหม่ (สร้างหมวดหมู่เลขเหมือนในรูป)
         interpretDream() {
           if(!this.dreamText) return this.showToast('กรุณาเล่าความฝันของคุณ', '⚠️');
-          const dict = { 'งู': [5,6,8], 'น้ำ': [1,2,7], 'คนตาย': [0,4,9], 'ทอง': [4,6,8], 'ฟัน': [0,3,5], 'เด็ก': [1,3,7], 'ช้าง': [1,9,3], 'ปลา': [8,7,2], 'บ้าน': [0,5,7], 'รถ': [4,7,8], 'เต่า': [4,3,2] };
-          let found = [];
-          for (let key in dict) if (this.dreamText.includes(key)) found = [...found, ...dict[key]];
-          if(found.length === 0) { this.dreamResult = [Math.floor(Math.random()*10), Math.floor(Math.random()*10)]; this.showToast('ไม่พบคีย์เวิร์ดเด่น สุ่มเลขมงคลให้แทน', '🔮'); } 
-          else { this.dreamResult = [...new Set(found)].slice(0, 3); this.showToast('ถอดรหัสฝันสำเร็จ!', '✅'); }
+          
+          // พจนานุกรมความฝัน
+          const dict = [
+            { keys: ['ขี้', 'อุจจาระ', 'ส้วม'], meaning: 'มีเกณฑ์ได้รับโชคลาภจากการเสี่ยงโชค ได้รับเงินทองก้อนโต หรือข่าวดีด้านการงาน การเงินที่ติดขัดจะดีขึ้น เป็นฝันที่นำโชคดีมาให้', base: [2, 5, 6, 7, 4, 1] },
+            { keys: ['งู', 'พญานาค'], meaning: 'จะมีโชคด้านความรัก อาจเจอเนื้อคู่ คนโสดจะได้พบคนถูกใจ หรืออาจมีโชคลาภจากการเดินทาง', base: [5, 6, 8, 9] },
+            { keys: ['น้ำ', 'ฝน', 'ว่ายน้ำ'], meaning: 'ชีวิตจะมีความร่มเย็นเป็นสุข หมดเคราะห์หมดโศก หน้าที่การงานจะเจริญก้าวหน้า', base: [1, 2, 7, 0] },
+            { keys: ['คนตาย', 'ศพ', 'ผี'], meaning: 'จะหมดเคราะห์ หรือได้รับข่าวดีจากทางไกล อาจมีโชคลาภแบบไม่คาดฝันจากคนที่ล่วงลับไปแล้ว', base: [0, 4, 9, 8] },
+            { keys: ['ทอง', 'เงิน', 'แหวน'], meaning: 'จะมีโชคลาภก้อนใหญ่ หรือประสบความสำเร็จในสิ่งที่หวังไว้ สมปรารถนาทุกประการ', base: [4, 6, 8, 2] },
+            { keys: ['เด็ก', 'ทารก', 'ท้อง'], meaning: 'จะมีโชคลาภจากการเริ่มต้นสิ่งใหม่ๆ หรืออาจได้รับข่าวดีเรื่องบุตรบริวาร สิ่งที่คิดไว้จะสำเร็จ', base: [1, 3, 7, 5] },
+          ];
+
+          let matched = dict.find(item => item.keys.some(k => this.dreamText.includes(k)));
+          
+          if (!matched) {
+            matched = {
+              meaning: 'เป็นความฝันที่ดี จะมีสิ่งดีๆ เข้ามาในชีวิตในเร็วๆ นี้ ให้หมั่นทำบุญเสริมสิริมงคล โชคลาภกำลังเดินทางมา',
+              base: [Math.floor(Math.random()*9), Math.floor(Math.random()*9)+1, Math.floor(Math.random()*9), Math.floor(Math.random()*9)+1]
+            };
+            this.showToast('ถอดรหัสพลังงานความฝัน', '🔮');
+          } else {
+            this.showToast('ถอดรหัสฝันสำเร็จ!', '✅');
+          }
+
+          // สุ่มสร้างเลขชุดจาก Base Number เพื่อความสมจริง
+          let b = [...matched.base];
+          while(b.length < 5) b.push((b[b.length-1] + 3) % 10); // สร้างเลขหลอกถ้าฐานน้อยไป
+          
+          const pick = (arr, n) => [...arr].sort(()=>0.5-Math.random()).slice(0, n);
+          
+          this.dreamData = {
+             meaning: matched.meaning,
+             mainNumbers: pick(b, 3).join(', '),
+             secondaryNumbers: pick(b, 4).join(', '),
+             threeDigits: [pick(b,3).join(''), pick(b,3).join(''), pick(b,3).join('')].join(', '),
+             twoDigits: [pick(b,2).join(''), pick(b,2).join(''), pick(b,2).join(''), pick(b,2).join('')].join(', ')
+          };
         },
 
-        toggleState(i) { const c = this.form.numStates[i]; this.form.numStates[i] = c === 'normal' ? 'force' : (c === 'force' ? 'ban' : 'normal'); },
-        getStateClass(i) {
-          const s = this.form.numStates[i];
-          if (s === 'force') return 'bg-emerald-500 text-white border-emerald-600 shadow-inner scale-95';
-          if (s === 'ban') return 'bg-rose-50 border-rose-500 text-rose-700 opacity-60 scale-95';
-          return 'bg-white border-slate-200 text-slate-700 hover:border-emerald-300';
+        copyDream() {
+          if (!this.dreamData) return;
+          let text = `📝 สรุปคำทำนายและเลขเด็ด\n\n`;
+          text += `ความฝัน: "${this.dreamText}"\n`;
+          text += `คำทำนาย: ${this.dreamData.meaning}\n\n`;
+          text += `เลขเด็ดแม่นๆ: ${this.dreamData.mainNumbers}\n`;
+          text += `เลขรอง: ${this.dreamData.secondaryNumbers}\n`;
+          text += `เลขชุด 3 ตัว: ${this.dreamData.threeDigits}\n`;
+          text += `เลขชุด 2 ตัว: ${this.dreamData.twoDigits}`;
+          navigator.clipboard.writeText(text).then(() => this.showToast('คัดลอกคำทำนายเรียบร้อย', '📋'));
         },
+
+        // ฟังก์ชันระบบหลักอื่นๆ คงเดิม
+        toggleState(i) { const c = this.form.numStates[i]; this.form.numStates[i] = c === 'normal' ? 'force' : (c === 'force' ? 'ban' : 'normal'); },
+        getStateClass(i) { const s = this.form.numStates[i]; if (s === 'force') return 'bg-emerald-500 text-white border-emerald-600 shadow-inner scale-95'; if (s === 'ban') return 'bg-rose-50 border-rose-500 text-rose-700 opacity-60 scale-95'; return 'bg-white border-slate-200 text-slate-700 hover:border-emerald-300'; },
         resetNumStates() { this.form.numStates = { '0':'normal', '1':'normal', '2':'normal', '3':'normal', '4':'normal', '5':'normal', '6':'normal', '7':'normal', '8':'normal', '9':'normal' }; this.showToast('รีเซ็ตล็อคเลขแล้ว', '🔄'); },
         showToast(msg, icon = '🔔') { this.toast = { show: true, msg, icon }; setTimeout(() => { this.toast.show = false; }, 3000); },
-
-        copyResult() {
-          if (!this.result) return;
-          let text = `✨ เลขเด่น ${this.form.lotteryType}: ${this.result.prediction.join('-')}\n✌️ 2 ตัว: ${this.combos.two.join(', ')}\n🤟 3 ตัว: ${this.combos.three.join(', ')}`;
-          navigator.clipboard.writeText(text).then(() => this.showToast('คัดลอกตัวเลขเรียบร้อย', '📋'));
-        },
-
-        async shareAsImage() {
-           const watermark = document.getElementById('watermark'); watermark.classList.remove('hidden');
-           try {
-             const canvas = await html2canvas(document.getElementById('capture-area'), { scale: 2, backgroundColor: '#f4f7f6' });
-             const dataUrl = canvas.toDataURL('image/jpeg', 0.9);
-             watermark.classList.add('hidden');
-             if (navigator.share) { try { const blob = await (await fetch(dataUrl)).blob(); const file = new File([blob], `LOTTOAI.jpg`, { type: 'image/jpeg' }); await navigator.share({ title: 'ผลวิเคราะห์ LOTTOAI', files: [file] }); return; } catch (err) {} }
-             const link = document.createElement('a'); link.download = `LOTTOAI-${this.form.lotteryType}.jpg`; link.href = dataUrl; link.click();
-             this.showToast('บันทึกรูปภาพเรียบร้อย', '📸');
-           } catch (err) { watermark.classList.add('hidden'); this.showToast('เกิดข้อผิดพลาดในการสร้างภาพ', '❌'); }
-        },
-
-        generateCombos(array, size) {
-          let result = []; const combine = (prefix, arr) => { for (let i = 0; i < arr.length; i++) { if (prefix.length + 1 === size) result.push(prefix + arr[i]); else combine(prefix + arr[i], arr.slice(i + 1)); } };
-          combine('', array); return result;
-        },
-
-        async fetchHistory() {
-          try { const response = await fetch(`${API_URL}?action=getHistory`); this.history = await response.json(); } catch (error) {}
-        },
-
-        async analyze() {
-          if (!this.form.inputNumbers) return this.showToast('กรุณากรอกเลขงวดล่าสุดก่อนครับ', '⚠️');
-          this.loading = true; this.result = null; this.combos = { two: [], three: [] };
-          try {
-            const response = await fetch(API_URL, { method: 'POST', headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify({ action: 'analyze', data: this.form }) });
-            const data = await response.json();
-            this.result = data;
-            if(data.prediction && data.prediction.length >= 3) { this.combos.two = this.generateCombos(data.prediction, 2); this.combos.three = this.generateCombos(data.prediction, 3); }
-            this.showToast('ประมวลผลด้วย AI สำเร็จ!', '✨'); this.fetchHistory(); 
-          } catch (error) { this.showToast('เชื่อมต่อล้มเหลว', '❌'); } finally { this.loading = false; }
-        },
-
-        renderCharts() {
-          if (this.chartsRendered) return; this.chartsRendered = true;
-          setTimeout(() => {
-            Chart.defaults.font.family = 'Kanit';
-            const ctx1 = document.getElementById('engineChart');
-            if(ctx1) new Chart(ctx1.getContext('2d'), { type: 'bar', data: { labels: ['โหมด A', 'โหมด B', 'โหมด C'], datasets: [{ data: [78, 92, 65], backgroundColor: ['#10b981', '#0ea5e9', '#f59e0b'], borderRadius: 6, barThickness: 35 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { grid: { borderDash: [5, 5] } }, x: { grid: { display: false } } } } });
-            const ctx2 = document.getElementById('formulaChart');
-            if(ctx2) new Chart(ctx2.getContext('2d'), { type: 'doughnut', data: { labels: ['บวกคงที่', 'คูณทะลวง', 'บวกไขว้', 'เลขเงา'], datasets: [{ data: [35, 20, 40, 5], backgroundColor: ['#10b981', '#0ea5e9', '#f59e0b', '#ec4899'], borderWidth: 2, borderColor: '#fff' }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right', labels: { usePointStyle: true, boxWidth: 8, font: { size: 10 } } } }, cutout: '65%' } });
-          }, 100);
-        }
+        copyResult() { if (!this.result) return; let text = `✨ เลขเด่น ${this.form.lotteryType}: ${this.result.prediction.join('-')}\n✌️ 2 ตัว: ${this.combos.two.join(', ')}\n🤟 3 ตัว: ${this.combos.three.join(', ')}`; navigator.clipboard.writeText(text).then(() => this.showToast('คัดลอกตัวเลขเรียบร้อย', '📋')); },
+        async shareAsImage() { const watermark = document.getElementById('watermark'); watermark.classList.remove('hidden'); try { const canvas = await html2canvas(document.getElementById('capture-area'), { scale: 2, backgroundColor: '#f4f7f6' }); const dataUrl = canvas.toDataURL('image/jpeg', 0.9); watermark.classList.add('hidden'); if (navigator.share) { try { const blob = await (await fetch(dataUrl)).blob(); const file = new File([blob], `LOTTOAI.jpg`, { type: 'image/jpeg' }); await navigator.share({ title: 'ผลวิเคราะห์ LOTTOAI', files: [file] }); return; } catch (err) {} } const link = document.createElement('a'); link.download = `LOTTOAI-${this.form.lotteryType}.jpg`; link.href = dataUrl; link.click(); this.showToast('บันทึกรูปภาพเรียบร้อย', '📸'); } catch (err) { watermark.classList.add('hidden'); this.showToast('เกิดข้อผิดพลาดในการสร้างภาพ', '❌'); } },
+        generateCombos(array, size) { let result = []; const combine = (prefix, arr) => { for (let i = 0; i < arr.length; i++) { if (prefix.length + 1 === size) result.push(prefix + arr[i]); else combine(prefix + arr[i], arr.slice(i + 1)); } }; combine('', array); return result; },
+        async fetchHistory() { try { const response = await fetch(`${API_URL}?action=getHistory`); this.history = await response.json(); } catch (error) {} },
+        async analyze() { if (!this.form.inputNumbers) return this.showToast('กรุณากรอกเลขงวดล่าสุดก่อนครับ', '⚠️'); this.loading = true; this.result = null; this.combos = { two: [], three: [] }; try { const response = await fetch(API_URL, { method: 'POST', headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify({ action: 'analyze', data: this.form }) }); const data = await response.json(); this.result = data; if(data.prediction && data.prediction.length >= 3) { this.combos.two = this.generateCombos(data.prediction, 2); this.combos.three = this.generateCombos(data.prediction, 3); } this.showToast('ประมวลผลด้วย AI สำเร็จ!', '✨'); this.fetchHistory(); } catch (error) { this.showToast('เชื่อมต่อล้มเหลว', '❌'); } finally { this.loading = false; } },
+        renderCharts() { if (this.chartsRendered) return; this.chartsRendered = true; setTimeout(() => { Chart.defaults.font.family = 'Kanit'; const ctx1 = document.getElementById('engineChart'); if(ctx1) new Chart(ctx1.getContext('2d'), { type: 'bar', data: { labels: ['โหมด A', 'โหมด B', 'โหมด C'], datasets: [{ data: [78, 92, 65], backgroundColor: ['#10b981', '#0ea5e9', '#f59e0b'], borderRadius: 8, barThickness: 40 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { grid: { borderDash: [5, 5] } }, x: { grid: { display: false } } } } }); const ctx2 = document.getElementById('formulaChart'); if(ctx2) new Chart(ctx2.getContext('2d'), { type: 'doughnut', data: { labels: ['บวกคงที่', 'คูณทะลวง', 'บวกไขว้', 'เลขเงา'], datasets: [{ data: [35, 20, 40, 5], backgroundColor: ['#10b981', '#0ea5e9', '#f59e0b', '#ec4899'], borderWidth: 3, borderColor: '#fff' }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right', labels: { usePointStyle: true, boxWidth: 8 } } }, cutout: '70%' } }); }, 100); }
       }
     }
   </script>

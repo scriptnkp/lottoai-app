@@ -7,7 +7,7 @@
   
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#eefcf6">
-  <link rel="apple-touch-icon" href="icon.png?v=6">
+  <link rel="apple-touch-icon" href="icon.png?v=7">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
 
@@ -70,7 +70,6 @@
             {id: 'วิเคราะห์', icon: '🎯', name: 'วิเคราะห์เลขเด่น'},
             {id: 'ทำนายฝัน', icon: '🔮', name: 'AI หมอดูฝัน'},
             {id: 'ความแม่น', icon: '⚙️', name: 'ตั้งค่า Engine'},
-            {id: 'ตรวจสลาก', icon: '🎫', name: 'ตรวจสลากรัฐบาล'},
             {id: 'ประวัติ', icon: '📝', name: 'ประวัติวิเคราะห์'}
           ]">
             <button @click="switchTab(item.id)" :class="tab === item.id ? 'bg-emerald-500 text-white shadow-md shadow-emerald-200' : 'text-slate-600 hover:bg-slate-50'" class="w-full flex items-center gap-4 px-5 py-4 rounded-2xl transition-all duration-200">
@@ -100,17 +99,18 @@
     <main class="p-4 max-w-md mx-auto w-full flex-1">
       
       <div x-show="tab === 'สถิติ'" x-cloak x-transition.opacity.duration.300ms class="h-full flex flex-col gap-5 mt-2">
+        
         <div class="glass-card p-6">
           <div class="flex items-center gap-2 mb-1">
-            <span class="bg-blue-50 p-1.5 rounded-lg text-blue-600 text-sm">📊</span>
+            <span class="bg-blue-50 p-1.5 rounded-lg text-blue-600 text-sm">📈</span>
             <h2 class="font-black text-slate-800 text-lg">ความถี่เลข 0-9 ย้อนหลัง</h2>
           </div>
           <p class="text-[11px] text-slate-400 mb-4 font-medium">สถิติเจาะลึกจาก 10 งวดล่าสุด</p>
-          <div class="relative h-[22vh] min-h-[150px] w-full"><canvas id="freqChart"></canvas></div>
+          <div class="relative h-[25vh] min-h-[160px] w-full"><canvas id="freqChart"></canvas></div>
         </div>
         
         <div class="glass-card p-6">
-          <div class="flex items-center gap-2 mb-1"><span class="bg-emerald-50 p-1.5 rounded-lg text-emerald-600 text-sm">📈</span><h2 class="font-black text-slate-800 text-lg">อัตราความแม่นยำ</h2></div>
+          <div class="flex items-center gap-2 mb-1"><span class="bg-emerald-50 p-1.5 rounded-lg text-emerald-600 text-sm">📊</span><h2 class="font-black text-slate-800 text-lg">อัตราความแม่นยำ</h2></div>
           <p class="text-[11px] text-slate-400 mb-4 font-medium">Win Rate เปรียบเทียบ 3 Engine (ย้อนหลัง 30 งวด)</p>
           <div class="relative h-[22vh] min-h-[150px] w-full"><canvas id="engineChart"></canvas></div>
         </div>
@@ -127,26 +127,15 @@
           <p class="text-[11px] font-bold text-slate-500">อัปเดตข้อมูลแบบ Real-time</p>
           <span class="text-[10px] bg-rose-100 text-rose-600 px-2 py-1 rounded-md font-bold">HOT 🔥</span>
         </div>
-        
         <div class="space-y-4">
           <template x-for="guru in trendingGurus">
             <div class="glass-card p-5 relative overflow-hidden group hover:border-emerald-200 transition-colors">
               <div class="absolute -right-4 -top-4 w-16 h-16 bg-gradient-to-br from-emerald-50 to-transparent rounded-full opacity-50"></div>
               <div class="flex justify-between items-center mb-3">
-                <div class="flex items-center gap-3">
-                  <div class="text-2xl" x-text="guru.icon"></div>
-                  <div>
-                    <h3 class="font-black text-slate-800 text-base" x-text="guru.name"></h3>
-                    <p class="text-[10px] text-slate-400 font-medium" x-text="guru.desc"></p>
-                  </div>
-                </div>
+                <div class="flex items-center gap-3"><div class="text-2xl" x-text="guru.icon"></div><div><h3 class="font-black text-slate-800 text-base" x-text="guru.name"></h3><p class="text-[10px] text-slate-400 font-medium" x-text="guru.desc"></p></div></div>
                 <div class="bg-emerald-500 text-white text-[10px] font-bold px-2 py-1 rounded-lg shadow-sm" x-text="'ความแม่น ' + guru.accuracy + '%'"></div>
               </div>
-              <div class="flex gap-2 mt-2">
-                <template x-for="num in guru.numbers">
-                  <span class="bg-slate-50 border border-slate-100 text-slate-700 font-black text-lg px-4 py-1.5 rounded-xl shadow-sm" x-text="num"></span>
-                </template>
-              </div>
+              <div class="flex gap-2 mt-2"><template x-for="num in guru.numbers"><span class="bg-slate-50 border border-slate-100 text-slate-700 font-black text-lg px-4 py-1.5 rounded-xl shadow-sm" x-text="num"></span></template></div>
             </div>
           </template>
         </div>
@@ -161,59 +150,16 @@
 
       <div x-show="tab === 'ทำนายฝัน'" x-cloak x-transition.opacity.duration.300ms class="mt-2 h-[calc(100vh-140px)] flex flex-col relative">
         <div class="glass-card flex-1 p-4 mb-4 overflow-y-auto scrollbar-hide flex flex-col gap-4" id="chatContainer">
-          
-          <div class="flex gap-3">
-            <div class="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center text-xl shrink-0">🔮</div>
-            <div class="chat-bubble chat-ai shadow-sm">
-              สวัสดีครับ 🙏 ผมคือ AI หมอดูประจำแอป เมื่อคืนคุณฝันเห็นอะไร เล่าให้ผมฟังได้เลยครับ เดี๋ยวผมจะถอดรหัสเป็นเลขมงคลให้ครับ ✨
-            </div>
-          </div>
-
-          <template x-for="(msg, index) in chatHistory" :key="index">
-            <div class="flex gap-3" :class="msg.sender === 'user' ? 'flex-row-reverse' : ''">
-              <div x-show="msg.sender === 'ai'" class="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center text-xl shrink-0">🔮</div>
-              <div class="chat-bubble shadow-sm" :class="msg.sender === 'user' ? 'chat-user' : 'chat-ai'" x-html="msg.text"></div>
-            </div>
-          </template>
-          
-          <div x-show="isBotTyping" class="flex gap-3">
-            <div class="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center text-xl shrink-0">🔮</div>
-            <div class="chat-bubble chat-ai shadow-sm flex items-center gap-1.5 h-10 px-4">
-              <div class="w-2 h-2 bg-slate-300 rounded-full animate-bounce"></div>
-              <div class="w-2 h-2 bg-slate-300 rounded-full animate-bounce" style="animation-delay: 0.1s"></div>
-              <div class="w-2 h-2 bg-slate-300 rounded-full animate-bounce" style="animation-delay: 0.2s"></div>
-            </div>
-          </div>
+          <div class="flex gap-3"><div class="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center text-xl shrink-0">🔮</div><div class="chat-bubble chat-ai shadow-sm">สวัสดีครับ 🙏 ผมคือ AI หมอดูประจำแอป เมื่อคืนคุณฝันเห็นอะไร เล่าให้ผมฟังได้เลยครับ เดี๋ยวผมจะถอดรหัสเป็นเลขมงคลให้ครับ ✨</div></div>
+          <template x-for="(msg, index) in chatHistory" :key="index"><div class="flex gap-3" :class="msg.sender === 'user' ? 'flex-row-reverse' : ''"><div x-show="msg.sender === 'ai'" class="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center text-xl shrink-0">🔮</div><div class="chat-bubble shadow-sm" :class="msg.sender === 'user' ? 'chat-user' : 'chat-ai'" x-html="msg.text"></div></div></template>
+          <div x-show="isBotTyping" class="flex gap-3"><div class="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center text-xl shrink-0">🔮</div><div class="chat-bubble chat-ai shadow-sm flex items-center gap-1.5 h-10 px-4"><div class="w-2 h-2 bg-slate-300 rounded-full animate-bounce"></div><div class="w-2 h-2 bg-slate-300 rounded-full animate-bounce" style="animation-delay: 0.1s"></div><div class="w-2 h-2 bg-slate-300 rounded-full animate-bounce" style="animation-delay: 0.2s"></div></div></div>
         </div>
-
         <div class="glass-card p-2 flex items-center gap-2 mt-auto">
           <input type="text" x-model="dreamText" @keyup.enter="sendDreamChat()" class="flex-1 bg-slate-50 border-none outline-none font-bold text-slate-700 px-4 py-3 rounded-2xl placeholder-slate-400 text-sm" placeholder="พิมพ์ความฝันของคุณ...">
-          <button @click="sendDreamChat()" :disabled="!dreamText || isBotTyping" class="w-12 h-12 bg-emerald-500 rounded-2xl flex items-center justify-center text-white shadow-md active:scale-90 transition-transform disabled:opacity-50 shrink-0">
-            <svg class="w-5 h-5 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
-          </button>
+          <button @click="sendDreamChat()" :disabled="!dreamText || isBotTyping" class="w-12 h-12 bg-emerald-500 rounded-2xl flex items-center justify-center text-white shadow-md active:scale-90 transition-transform disabled:opacity-50 shrink-0"><svg class="w-5 h-5 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg></button>
         </div>
       </div>
 
-      <div x-show="tab === 'ตรวจสลาก'" x-cloak x-transition.opacity.duration.300ms class="mt-2">
-        <div class="glass-card p-8 mb-6 text-center">
-          <div class="w-20 h-20 bg-emerald-50 rounded-full flex items-center justify-center mx-auto mb-5 text-4xl">🎫</div>
-          <h2 class="text-2xl font-black text-slate-800 mb-2">ตรวจสลากกินแบ่งรัฐบาล</h2>
-          <div class="mb-6"><select x-model="selectedLottoDate" class="w-full bg-slate-50 border border-slate-100 text-slate-700 font-bold py-3.5 px-4 rounded-xl outline-none focus:ring-2 focus:ring-emerald-400 text-center"><template x-for="d in lottoDates"><option :value="d.value" x-text="d.label"></option></template></select></div>
-          <input type="text" maxlength="6" inputmode="numeric" x-model="checkLottoNumber" class="w-full text-center text-5xl font-black tracking-[0.25em] py-6 rounded-2xl border border-slate-100 bg-slate-50 outline-none text-slate-800 focus:ring-2 focus:ring-emerald-400 transition-all mb-6 placeholder-slate-300" placeholder="000000">
-          <button @click="verifyLottoReal()" :disabled="checkLottoLoading" class="w-full bg-emerald-500 text-white py-4.5 rounded-2xl font-black shadow-lg shadow-emerald-200 active:scale-95 transition-all text-lg flex justify-center items-center gap-2 disabled:opacity-50">
-            <span x-show="!checkLottoLoading">ตรวจผลรางวัล</span>
-            <span x-show="checkLottoLoading" class="flex items-center gap-2"><svg class="animate-spin h-5 w-5" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> รอสักครู่...</span>
-          </button>
-        </div>
-        <div x-show="checkLottoResult" x-transition.opacity.duration.500ms class="glass-card p-8 text-center">
-          <div class="text-6xl mb-4" x-text="checkLottoResult?.icon"></div>
-          <h3 class="text-2xl font-black mb-2" :class="checkLottoResult?.isWin ? 'text-emerald-600' : 'text-slate-700'" x-text="checkLottoResult?.title"></h3>
-          <p class="text-sm font-bold text-slate-500 mb-6" x-text="checkLottoResult?.message"></p>
-          <div x-show="checkLottoResult?.isWin" class="bg-emerald-50 rounded-2xl p-4 mb-5"><p class="text-[11px] text-emerald-600 font-bold uppercase tracking-wider mb-1">เงินรางวัลที่ได้รับ</p><p class="text-3xl font-black text-emerald-700"><span x-text="checkLottoResult?.reward"></span> <span class="text-base">บาท</span></p></div>
-          <div class="bg-slate-50 py-3.5 px-5 rounded-xl border border-slate-100 flex justify-between items-center"><span class="text-xs text-slate-400 font-bold" x-text="'งวด: ' + (checkLottoResult?.date || 'ล่าสุด')"></span><span class="text-xl font-black text-slate-700 tracking-widest" x-text="checkLottoNumber"></span></div>
-        </div>
-      </div>
-      
       <div x-show="tab === 'ความแม่น'" x-cloak x-transition.opacity.duration.300ms class="mt-2">
         <div class="glass-card p-6 mb-6">
           <h2 class="font-black text-slate-800 mb-2 text-xl">⚙️ ปรับโหมด Engine</h2>
@@ -257,27 +203,20 @@
         isLoggedIn: false, authMode: 'login', authData: { username: '', password: '' }, username: '',
         tab: 'สถิติ', isMenuOpen: false, loading: false, loadingHistory: false, result: null, history: [], combos: { two: [], three: [] },
         toast: { show: false, msg: '', icon: '' }, currentDayName: '', chartsRendered: false,
-        
-        // สำหรับ Chatbot ทำนายฝัน
-        dreamText: '', isBotTyping: false,
-        chatHistory: [],
-        
-        // ข้อมูลเลขสำนักดัง (สมมติ)
+        dreamText: '', isBotTyping: false, chatHistory: [],
         trendingGurus: [
           { name: 'แม่น้ำหนึ่ง', icon: '👸', desc: 'บารมีปู่ย่าพญานาค', numbers: ['72', '85', '91'], accuracy: 85 },
           { name: 'คำชะโนด', icon: '🐉', desc: 'เลขเด็ดจากขันน้ำมนต์', numbers: ['15', '46', '38'], accuracy: 78 },
           { name: 'ม้าสีหมอก', icon: '🐴', desc: 'เลขวิ่งเข้าเป้าบ่อย', numbers: ['2', '9'], accuracy: 82 },
           { name: 'ทะเบียนรถนายก', icon: '🚗', desc: 'กระแสแรงที่สุดงวดนี้', numbers: ['95', '14'], accuracy: 90 }
         ],
-
-        checkLottoNumber: '', checkLottoLoading: false, checkLottoResult: null, selectedLottoDate: 'latest', lottoDates: [],
         engines: [{ id: 'A', title: 'ความถี่สูงสุด', desc: 'นับเลขที่ติด Top 5 บ่อยที่สุด' },{ id: 'B', title: 'ลำดับคะแนน', desc: 'ให้คะแนนตามอันดับที่ออก' },{ id: 'C', title: 'คะแนนดิบ', desc: 'ใช้คะแนนความแม่นยำรวม' }],
         form: { lotteryType: 'รัฐบาลไทย', inputNumbers: '', engineMode: 'A', numStates: { '0':'normal', '1':'normal', '2':'normal', '3':'normal', '4':'normal', '5':'normal', '6':'normal', '7':'normal', '8':'normal', '9':'normal' } },
 
         initApp() { 
           const savedUser = localStorage.getItem('lottoUser');
           if (savedUser) { this.username = savedUser; this.isLoggedIn = true; this.fetchHistory(); if(this.tab === 'สถิติ') setTimeout(() => this.renderCharts(), 100); }
-          this.setDayName(); this.lottoDates = this.generateLottoDates(); 
+          this.setDayName(); 
         },
 
         async handleAuth() {
@@ -300,115 +239,42 @@
         setDayName() { const days = ['อาทิตย์', 'จันทร์', 'อังคาร', 'พุธ', 'พฤหัสบดี', 'ศุกร์', 'เสาร์']; this.currentDayName = days[new Date().getDay()]; },
         
         switchTab(t) { 
-          this.tab = t; this.isMenuOpen = false; this.checkLottoResult = null; 
+          this.tab = t; this.isMenuOpen = false; 
           if(t === 'ประวัติ') this.fetchHistory(); 
           if(t === 'สถิติ') this.renderCharts(); 
           if(t === 'ทำนายฝัน' && this.chatHistory.length === 0) this.scrollToBottom();
         },
 
-        generateLottoDates() {
-          const dates = [{ value: 'latest', label: '⭐ งวดล่าสุด (อัปเดตอัตโนมัติ)' }];
-          const today = new Date(); let y = today.getFullYear(); let m = today.getMonth() + 1;
-          const thMonths = ['มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
-          for(let i=0; i<8; i++) {
-            let mStr = m.toString().padStart(2,'0'); let yTh = y + 543;
-            let d16 = new Date(y, m-1, 16); if(d16 <= today) dates.push({ value: `16${mStr}${yTh}`, label: `16 ${thMonths[m-1]} ${yTh}` });
-            let d1Day = 1; if(m === 1) d1Day = 17; if(m === 5) d1Day = 2;
-            let d1 = new Date(y, m-1, d1Day); if(d1 <= today) dates.push({ value: `${d1Day.toString().padStart(2,'0')}${mStr}${yTh}`, label: `${d1Day} ${thMonths[m-1]} ${yTh}` });
-            if(m === 1) { let d30 = new Date(y-1, 11, 30); if(d30 <= today) dates.push({ value: `3012${yTh-1}`, label: `30 ธันวาคม ${yTh-1}` }); }
-            m--; if(m === 0) { m = 12; y--; }
-          } return dates;
-        },
-
-        async verifyLottoReal() {
-          if(this.checkLottoNumber.length !== 6) return this.showToast('กรุณากรอกเลขให้ครบ 6 หลัก', '⚠️');
-          this.checkLottoLoading = true; this.checkLottoResult = null;
-          
-          try {
-            let data = null; let datesToTry = this.selectedLottoDate === 'latest' ? ['latest'] : [this.selectedLottoDate, this.selectedLottoDate.replace(/^0/, '')];
-            for (let d of datesToTry) {
-               let endpoint = d === 'latest' ? 'https://lotto.api.rayriffy.com/latest' : `https://lotto.api.rayriffy.com/lotto/${d}`;
-               try { let res = await fetch(endpoint); let json = await res.json(); if (json.status === "success" || json.status === "ok") { data = json; break; } } catch(e) {}
-            }
-            if (!data && API_URL && !API_URL.includes("วาง_URL")) {
-               for (let d of datesToTry) {
-                 try {
-                   let proxyRes = await fetch(API_URL, { method: 'POST', redirect: "follow", headers: {"Content-Type": "text/plain;charset=utf-8"}, body: JSON.stringify({ action: 'checkLotto', date: d }) });
-                   let responseText = await proxyRes.text();
-                   if(responseText.includes("<html")) throw new Error("GAS_NOT_UPDATED");
-                   let proxyData = JSON.parse(responseText);
-                   if(proxyData.response && (proxyData.status === "success" || proxyData.status === "ok")) { data = proxyData; break; }
-                 } catch(e) { if(e.message === "GAS_NOT_UPDATED") { this.showToast('กรุณา New Deploy ใน Google Script', '⚠️'); return; } }
-               }
-            }
-            if (!data || data.status === "error") { try { let latestRes = await fetch('https://lotto.api.rayriffy.com/latest'); data = await latestRes.json(); this.showToast('แสดงผลงวดล่าสุดแทน เนื่องจากไม่พบข้อมูล', 'ℹ️'); } catch(e) { throw new Error("API_DOWN"); } }
-            if(!data || !data.response || data.status === "error") throw new Error("API_DOWN");
-
-            const lottoData = data.response; const checkNum = this.checkLottoNumber; let winData = null;
-            if (lottoData.prizes[0].number.includes(checkNum)) winData = { title: 'รางวัลที่ 1', reward: lottoData.prizes[0].reward }; else if (lottoData.runningNumbers[0].number.includes(checkNum)) winData = { title: 'รางวัลข้างเคียงรางวัลที่ 1', reward: lottoData.runningNumbers[0].reward }; else if (lottoData.prizes[1].number.includes(checkNum)) winData = { title: 'รางวัลที่ 2', reward: lottoData.prizes[1].reward }; else if (lottoData.prizes[2].number.includes(checkNum)) winData = { title: 'รางวัลที่ 3', reward: lottoData.prizes[2].reward }; else if (lottoData.prizes[3].number.includes(checkNum)) winData = { title: 'รางวัลที่ 4', reward: lottoData.prizes[3].reward }; else if (lottoData.prizes[4].number.includes(checkNum)) winData = { title: 'รางวัลที่ 5', reward: lottoData.prizes[4].reward };
-            let minorWins = []; if (lottoData.runningNumbers[1].number.includes(checkNum.substring(0, 3))) minorWins.push(`หน้า 3 ตัว`); if (lottoData.runningNumbers[2].number.includes(checkNum.substring(3, 6))) minorWins.push(`ท้าย 3 ตัว`); if (lottoData.runningNumbers[3].number.includes(checkNum.substring(4, 6))) minorWins.push(`ท้าย 2 ตัว`);
-
-            if (winData || minorWins.length > 0) {
-              let finalTitle = winData ? winData.title : minorWins[0]; if (winData && minorWins.length > 0) finalTitle += ' และ ' + minorWins.join(', ');
-              let displayReward = winData ? winData.reward : lottoData.runningNumbers.find(r => r.name.includes(minorWins[0].substring(0,4)))?.reward || "0";
-              this.checkLottoResult = { icon: '🎉', title: 'ยินดีด้วย!', message: `คุณถูก ${finalTitle}`, reward: Number(displayReward).toLocaleString(), isWin: true, date: lottoData.date };
-            } else { this.checkLottoResult = { icon: '😢', title: 'เสียใจด้วย', message: 'สลากของคุณไม่ถูกรางวัล', reward: '0', isWin: false, date: lottoData.date }; }
-          } catch(e) { this.showToast('เซิร์ฟเวอร์ขัดข้อง', '❌'); } finally { this.checkLottoLoading = false; }
-        },
-
-        // ✅ ระบบ Chatbot AI ทำนายฝัน
         sendDreamChat() {
           if(!this.dreamText.trim()) return;
           const userMsg = this.dreamText;
-          
-          // แอดข้อความผู้ใช้เข้าแชท
           this.chatHistory.push({ sender: 'user', text: userMsg });
-          this.dreamText = '';
-          this.isBotTyping = true;
-          this.scrollToBottom();
+          this.dreamText = ''; this.isBotTyping = true; this.scrollToBottom();
 
-          // หน่วงเวลาให้เหมือนบอทกำลังคิด
           setTimeout(() => {
             const text = userMsg.toLowerCase();
             const dict = [{ keys: ['บวช', 'พระ', 'วัด', 'ทำบุญ', 'สวดมนต์'], meaning: 'การฝันเห็นสิ่งศักดิ์สิทธิ์หรือการทำบุญ ถือเป็นมงคลยิ่งครับ 🌟 จะได้รับข่าวดีเรื่องหน้าที่การงาน หรือจะหมดเคราะห์หมดโศก มีเกณฑ์ได้รับโชคจากผู้ใหญ่ครับ', base: [8, 9, 2, 0, 7] },{ keys: ['บ้าน', 'สร้างบ้าน', 'ย้ายบ้าน', 'ซื้อบ้าน'], meaning: 'ฝันเกี่ยวกับบ้าน 🏡 หมายถึงความมั่นคงครับ การงานจะมีความมั่นคงมากขึ้น ครอบครัวจะร่มเย็นเป็นสุข หากมีหนี้สินก็จะเริ่มคลี่คลายครับ', base: [0, 4, 7, 5, 9] },{ keys: ['รถ', 'ขับรถ', 'รถชน', 'ซื้อรถ', 'มอไซค์'], meaning: 'ฝันเห็นพาหนะ 🚗 มีเกณฑ์จะได้เดินทางไกลครับ หรือจะได้ลาภลอยจากการเดินทาง ลองเอาป้ายทะเบียนไปเสี่ยงโชคดูนะครับ', base: [4, 7, 8, 2, 6] },{ keys: ['ไฟไหม้', 'ไฟ', 'ไหม้บ้าน'], meaning: 'แม้จะดูน่ากลัว แต่นี่คือฝันร้ายกลายเป็นดีครับ! 🔥 จะหมดเคราะห์ โชคลาภกำลังจะเข้ามาอย่างไม่ทันตั้งตัวครับ', base: [3, 0, 9, 4, 7] },{ keys: ['ขี้', 'อุจจาระ', 'ส้วม', 'เปื้อนขี้'], meaning: 'ยินดีด้วยครับ! นี่เป็นสุดยอดความฝันรับทรัพย์ 💩 มีเกณฑ์ได้รับโชคลาภจากการเสี่ยงโชค ได้รับเงินก้อนโต หรือได้โบนัสพิเศษครับ!', base: [2, 5, 6, 7, 4, 1] },{ keys: ['งู', 'พญานาค', 'งูกัด', 'งูรัด'], meaning: 'ฝันยอดฮิตเลยครับ 🐍 จะมีโชคด้านความรัก คนโสดจะเจอเนื้อคู่ หรืออาจมีโชคลาภก้อนใหญ่จากการเสี่ยงดวงครับ', base: [5, 6, 8, 9, 0] },{ keys: ['น้ำ', 'ฝน', 'ว่ายน้ำ', 'จมน้ำ', 'น้ำท่วม'], meaning: 'ฝันเกี่ยวกับน้ำ 💧 สื่อถึงชีวิตจะร่มเย็นเป็นสุข เรื่องร้ายจะผ่านไป การลงทุนค้าขายจะได้กำไรดี มีคนคอยอุปถัมภ์ครับ', base: [1, 2, 7, 0, 5] },{ keys: ['คนตาย', 'ศพ', 'ผี', 'งานศพ', 'โลง'], meaning: 'ความฝันแบบนี้ 👻 หมายถึงจะหมดเคราะห์ เคราะห์ร้ายกลายเป็นดี หรืออาจได้รับโชคลาภแบบไม่คาดฝันครับ', base: [0, 4, 9, 8, 2] },{ keys: ['ทอง', 'เงิน', 'แหวน', 'เพชร', 'สร้อย'], meaning: 'ฝันเห็นของมีค่า 💍 มีเกณฑ์จะได้รับทรัพย์ก้อนใหญ่ ประสบความสำเร็จในสิ่งที่หวังไว้ สมปรารถนาด้านการเงินครับ', base: [4, 6, 8, 2, 1] },{ keys: ['เด็ก', 'ทารก', 'ท้อง', 'คลอดลูก'], meaning: 'ฝันเห็นเด็กทารก 👶 จะมีโชคลาภจากการเริ่มต้นสิ่งใหม่ๆ ได้รับข่าวดีเรื่องบริวาร หรือธุรกิจที่ทำอยู่จะเจริญรุ่งเรืองครับ', base: [1, 3, 7, 5, 0] },{ keys: ['ปลา', 'จับปลา', 'กินปลา'], meaning: 'ฝันว่าจับปลา 🐟 จะมีโชคลาภเข้ามาเรื่อยๆ ทำมาค้าขึ้น หยิบจับอะไรก็เป็นเงินเป็นทอง เป็นช่วงน้ำขึ้นให้รีบตักครับ', base: [8, 7, 2, 1, 0] }];
             
             let matched = dict.find(item => item.keys.some(k => text.includes(k)));
-            
-            let responseText = "";
-            let b = [];
+            let responseText = ""; let b = [];
 
             if (!matched) { 
               const fallbacks = ['เป็นความฝันที่สื่อถึงการเปลี่ยนแปลงในชีวิตครับ ช่วงนี้ให้หมั่นทำบุญเสริมดวง โชคลาภกำลังจะเดินทางมา','ความฝันนี้เป็นลางบอกเหตุถึงโอกาสใหม่ๆ ที่กำลังจะเข้ามา ลองเปิดใจรับสิ่งใหม่ แล้วจะพบกับความโชคดีครับ','ช่วงนี้อาจมีความกังวลใจซ่อนอยู่ แต่ไม่ต้องห่วงครับ ปัญหาทุกอย่างจะคลี่คลาย และจะมีโชคเข้ามาปลอบใจ','เป็นฝันที่สื่อถึงพลังงานบวกครับ สิ่งที่คิดหรือหวังไว้มีโอกาสสำเร็จสูง ลองเสี่ยงโชคดูสักนิดอาจจะรวยไม่รู้ตัว!']; 
               responseText = fallbacks[Math.floor(Math.random() * fallbacks.length)]; 
               b = [Math.floor(Math.random()*9), Math.floor(Math.random()*9)+1, Math.floor(Math.random()*9), Math.floor(Math.random()*9)+1];
-            } else { 
-              responseText = matched.meaning;
-              b = [...matched.base];
-            }
+            } else { responseText = matched.meaning; b = [...matched.base]; }
 
             while(b.length < 5) b.push((b[b.length-1] + 3) % 10); 
             const pick = (arr, n) => [...arr].sort(()=>0.5-Math.random()).slice(0, n);
-            
-            let mainNum = pick(b, 3).join('');
-            let subNum = pick(b, 2).join('');
+            let mainNum = pick(b, 3).join(''); let subNum = pick(b, 2).join('');
 
-            // ปั้นข้อความตอบกลับ
             responseText += `<br><br><span class="inline-block bg-emerald-100 text-emerald-700 px-3 py-1 rounded-lg mt-2">✨ เลขเด็ดนำโชค: <span class="font-black text-lg">${mainNum}</span>, <span class="font-black text-lg">${subNum}</span></span>`;
 
-            this.isBotTyping = false;
-            this.chatHistory.push({ sender: 'ai', text: responseText });
-            this.scrollToBottom();
-
-          }, 1500); // ดีเลย์ 1.5 วินาที
+            this.isBotTyping = false; this.chatHistory.push({ sender: 'ai', text: responseText }); this.scrollToBottom();
+          }, 1500);
         },
 
-        scrollToBottom() {
-          setTimeout(() => {
-            const container = document.getElementById('chatContainer');
-            if(container) container.scrollTop = container.scrollHeight;
-          }, 100);
-        },
-
+        scrollToBottom() { setTimeout(() => { const container = document.getElementById('chatContainer'); if(container) container.scrollTop = container.scrollHeight; }, 100); },
         toggleState(i) { const c = this.form.numStates[i]; this.form.numStates[i] = c === 'normal' ? 'force' : (c === 'force' ? 'ban' : 'normal'); },
         getStateClass(i) { const s = this.form.numStates[i]; if (s === 'force') return 'bg-emerald-500 text-white border-emerald-600 shadow-inner scale-95'; if (s === 'ban') return 'bg-rose-50 border-rose-500 text-rose-700 opacity-60 scale-95'; return 'bg-slate-50 border-slate-200 text-slate-700 hover:border-emerald-300'; },
         resetNumStates() { this.form.numStates = { '0':'normal', '1':'normal', '2':'normal', '3':'normal', '4':'normal', '5':'normal', '6':'normal', '7':'normal', '8':'normal', '9':'normal' }; this.showToast('รีเซ็ตล็อคเลขแล้ว', '🔄'); },
@@ -437,21 +303,42 @@
           if (this.chartsRendered) return; this.chartsRendered = true; 
           setTimeout(() => { 
             Chart.defaults.font.family = 'Kanit'; 
-
-            // กราฟความถี่ 0-9 (ใหม่ล่าสุด!)
+            
+            // ✅ เปลี่ยนกราฟความถี่ 0-9 ให้เป็น "กราฟเส้นโค้งสมูท (Line Chart)" ตามต้องการ
             const ctx0 = document.getElementById('freqChart');
             if(ctx0) {
-              new Chart(ctx0.getContext('2d'), {
-                type: 'bar',
+              const canvasContext = ctx0.getContext('2d');
+              let gradient = canvasContext.createLinearGradient(0, 0, 0, 200);
+              gradient.addColorStop(0, 'rgba(59, 130, 246, 0.4)'); // ฟ้าโปร่งแสงด้านบน
+              gradient.addColorStop(1, 'rgba(59, 130, 246, 0)');   // จางลงด้านล่าง
+              
+              new Chart(canvasContext, {
+                type: 'line',
                 data: {
                   labels: ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'],
                   datasets: [{
-                    data: [4, 7, 3, 5, 8, 2, 6, 9, 4, 5], // ข้อมูลสมมติ
-                    backgroundColor: '#3b82f6',
-                    borderRadius: 4
+                    data: [4, 7, 3, 5, 8, 2, 6, 9, 4, 5], 
+                    borderColor: '#3b82f6',
+                    backgroundColor: gradient,
+                    borderWidth: 3,
+                    pointBackgroundColor: '#ffffff',
+                    pointBorderColor: '#3b82f6',
+                    pointBorderWidth: 2,
+                    pointRadius: 4,
+                    pointHoverRadius: 6,
+                    fill: true,
+                    tension: 0.4 // ทำให้เส้นโค้งสมูทคลูๆ
                   }]
                 },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { display: false }, x: { grid: { display: false } } } }
+                options: { 
+                  responsive: true, 
+                  maintainAspectRatio: false, 
+                  plugins: { legend: { display: false } }, 
+                  scales: { 
+                    y: { display: false, beginAtZero: true }, 
+                    x: { grid: { display: false }, ticks: { font: { family: 'Kanit', weight: 'bold' } } } 
+                  } 
+                }
               });
             }
 

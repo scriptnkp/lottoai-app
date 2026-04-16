@@ -113,14 +113,36 @@
         <div class="space-y-4">
           <div x-show="loadingHistory" class="glass-card py-16 text-sm flex flex-col items-center justify-center gap-3"><div class="w-8 h-8 border-4 border-emerald-100 border-t-emerald-500 rounded-full animate-spin"></div><span class="text-slate-500 font-bold">กำลังซิงค์ข้อมูล...</span></div>
           <div x-show="!loadingHistory && history.length === 0" class="glass-card text-center text-slate-400 py-16 font-bold">ยังไม่มีประวัติการวิเคราะห์</div>
-          <template x-for="item in history">
-            <div class="glass-card p-5 flex justify-between items-center">
-              <div>
-                <div class="flex gap-2 items-center mb-1.5"><span class="text-[15px] font-black text-slate-800" x-text="item.type"></span><span class="text-[9px] bg-slate-800 text-white px-2 py-0.5 rounded-md font-bold uppercase" x-text="'โหมด ' + item.mode"></span></div>
-                <p class="text-[10px] text-emerald-600 font-bold mb-1" x-text="'เลขที่กรอก: ' + item.input"></p>
-                <p class="text-[10px] text-slate-400 font-medium" x-text="item.time"></p>
+          
+          <template x-for="(item, index) in history" :key="index">
+            <div x-data="{ expanded: false }" class="glass-card overflow-hidden">
+              <div @click="expanded = !expanded" class="p-5 flex justify-between items-center cursor-pointer hover:bg-slate-50 transition-colors">
+                <div>
+                  <div class="flex gap-2 items-center mb-1.5">
+                    <span class="text-[15px] font-black text-slate-800" x-text="item.type"></span>
+                    <span class="text-[9px] bg-slate-800 text-white px-2 py-0.5 rounded-md font-bold uppercase" x-text="'โหมด ' + item.mode"></span>
+                  </div>
+                  <p class="text-[10px] text-emerald-600 font-bold mb-1" x-text="'เลขที่กรอก: ' + item.input"></p>
+                  <p class="text-[10px] text-slate-400 font-medium" x-text="item.time"></p>
+                </div>
+                <div class="flex items-center gap-3">
+                  <div class="text-right"><span class="text-lg font-black text-emerald-600 bg-emerald-50 px-4 py-2.5 rounded-xl border border-emerald-100" x-text="item.result"></span></div>
+                  <div x-show="item.combosTwo || item.combosThree" class="text-slate-400 transition-transform duration-200" :class="expanded ? 'rotate-180' : ''">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                  </div>
+                </div>
               </div>
-              <div class="text-right"><span class="text-lg font-black text-emerald-600 bg-emerald-50 px-4 py-2.5 rounded-xl border border-emerald-100" x-text="item.result"></span></div>
+              
+              <div x-show="expanded && (item.combosTwo || item.combosThree)" x-collapse class="bg-slate-50 border-t border-slate-100 p-5">
+                <div x-show="item.combosTwo" class="mb-4">
+                  <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 block">✌️ เลข 2 ตัว</span>
+                  <p class="text-sm font-bold text-slate-700 leading-relaxed" x-text="item.combosTwo"></p>
+                </div>
+                <div x-show="item.combosThree">
+                  <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 block">🤟 เลข 3 ตัว</span>
+                  <p class="text-sm font-bold text-emerald-700 leading-relaxed" x-text="item.combosThree"></p>
+                </div>
+              </div>
             </div>
           </template>
         </div>
@@ -185,9 +207,40 @@
         copyResult() { if (!this.result) return; navigator.clipboard.writeText(`✨ เลขเด่น ${this.form.lotteryType}: ${this.result.prediction.join('-')}\n✌️ 2 ตัว: ${this.combos.two.join(', ')}\n🤟 3 ตัว: ${this.combos.three.join(', ')}`).then(() => this.showToast('คัดลอกเรียบร้อย', '📋')); },
         async shareAsImage() { const watermark = document.getElementById('watermark'); watermark.classList.remove('hidden'); try { const canvas = await html2canvas(document.getElementById('capture-area'), { scale: 2, backgroundColor: '#eefcf6' }); const dataUrl = canvas.toDataURL('image/jpeg', 0.9); watermark.classList.add('hidden'); if (navigator.share) { try { const blob = await (await fetch(dataUrl)).blob(); const file = new File([blob], `LOTTOAI.jpg`, { type: 'image/jpeg' }); await navigator.share({ title: 'ผลวิเคราะห์ LOTTOAI', files: [file] }); return; } catch (err) {} } const link = document.createElement('a'); link.download = `LOTTOAI-${this.form.lotteryType}.jpg`; link.href = dataUrl; link.click(); this.showToast('บันทึกรูปภาพเรียบร้อย', '📸'); } catch (err) { watermark.classList.add('hidden'); this.showToast('เกิดข้อผิดพลาด', '❌'); } },
         generateCombos(array, size) { let result = []; const combine = (prefix, arr) => { for (let i = 0; i < arr.length; i++) { if (prefix.length + 1 === size) result.push(prefix + arr[i]); else combine(prefix + arr[i], arr.slice(i + 1)); } }; combine('', array); return result; },
-        async fetchHistory() { if(!this.username) return; this.loadingHistory = true; this.history = []; try { const response = await fetch(`${API_URL}?action=getHistory&username=${this.username}`); const data = await response.json(); this.history = Array.isArray(data) ? data : []; } catch (error) { console.error("fetch history error"); } finally { this.loadingHistory = false; } },
-        async analyze() { if (!this.form.inputNumbers) return this.showToast('กรุณากรอกเลขงวดล่าสุด', '⚠️'); this.loading = true; this.result = null; this.combos = { two: [], three: [] }; try { const response = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'analyze', data: this.form, username: this.username }) }); const data = await response.json(); this.result = data; if(data.prediction && data.prediction.length >= 3) { this.combos.two = this.generateCombos(data.prediction, 2); this.combos.three = this.generateCombos(data.prediction, 3); } this.showToast('ประมวลผลสำเร็จ!', '✨'); this.fetchHistory(); } catch (error) { this.showToast('เชื่อมต่อล้มเหลว', '❌'); } finally { this.loading = false; } },
-        renderCharts() { if (this.chartsRendered) return; this.chartsRendered = true; setTimeout(() => { Chart.defaults.font.family = 'Kanit'; const ctx1 = document.getElementById('engineChart'); if(ctx1) new Chart(ctx1.getContext('2d'), { type: 'bar', data: { labels: ['โหมด A', 'โหมด B', 'โหมด C'], datasets: [{ data: [78, 92, 65], backgroundColor: ['#10b981', '#0ea5e9', '#f59e0b'], borderRadius: 6, barThickness: 35 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { grid: { borderDash: [5, 5] } }, x: { grid: { display: false } } } } }); const ctx2 = document.getElementById('formulaChart'); if(ctx2) new Chart(ctx2.getContext('2d'), { type: 'doughnut', data: { labels: ['บวกคงที่', 'คูณทะลวง', 'บวกไขว้', 'เลขเงา'], datasets: [{ data: [35, 20, 40, 5], backgroundColor: ['#10b981', '#0ea5e9', '#f59e0b', '#ec4899'], borderWidth: 2, borderColor: '#ffffff' }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right', labels: { usePointStyle: true, boxWidth: 8, font: { size: 10 } } } }, cutout: '65%' } }); }, 100); }
+        
+        async fetchHistory() { 
+          if(!this.username) return; 
+          this.loadingHistory = true; 
+          this.history = []; 
+          try { 
+            const response = await fetch(`${API_URL}?action=getHistory&username=${this.username}`); 
+            const data = await response.json(); 
+            this.history = Array.isArray(data) ? data : []; 
+          } catch (error) { console.error("fetch history error"); } 
+          finally { this.loadingHistory = false; } 
+        },
+        
+        async analyze() { 
+          if (!this.form.inputNumbers) return this.showToast('กรุณากรอกเลขงวดล่าสุด', '⚠️'); 
+          this.loading = true; this.result = null; this.combos = { two: [], three: [] }; 
+          try { 
+            const response = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'analyze', data: this.form, username: this.username }) }); 
+            const data = await response.json(); this.result = data; 
+            if(data.prediction && data.prediction.length >= 3) { this.combos.two = this.generateCombos(data.prediction, 2); this.combos.three = this.generateCombos(data.prediction, 3); } 
+            this.showToast('ประมวลผลสำเร็จ!', '✨'); this.fetchHistory(); 
+          } catch (error) { this.showToast('เชื่อมต่อล้มเหลว', '❌'); } finally { this.loading = false; } 
+        },
+        
+        renderCharts() { 
+          if (this.chartsRendered) return; this.chartsRendered = true; 
+          setTimeout(() => { 
+            Chart.defaults.font.family = 'Kanit'; 
+            const ctx1 = document.getElementById('engineChart'); 
+            if(ctx1) new Chart(ctx1.getContext('2d'), { type: 'bar', data: { labels: ['โหมด A', 'โหมด B', 'โหมด C'], datasets: [{ data: [78, 92, 65], backgroundColor: ['#10b981', '#0ea5e9', '#f59e0b'], borderRadius: 6, barThickness: 35 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { grid: { borderDash: [5, 5] } }, x: { grid: { display: false } } } } }); 
+            const ctx2 = document.getElementById('formulaChart'); 
+            if(ctx2) new Chart(ctx2.getContext('2d'), { type: 'doughnut', data: { labels: ['บวกคงที่', 'คูณทะลวง', 'บวกไขว้', 'เลขเงา'], datasets: [{ data: [35, 20, 40, 5], backgroundColor: ['#10b981', '#0ea5e9', '#f59e0b', '#ec4899'], borderWidth: 2, borderColor: '#ffffff' }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right', labels: { usePointStyle: true, boxWidth: 8, font: { size: 10 } } } }, cutout: '65%' } }); 
+          }, 100); 
+        }
       }
     }
   </script>

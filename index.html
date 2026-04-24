@@ -7,7 +7,7 @@
   
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#eefcf6">
-  <link rel="apple-touch-icon" href="icon.png?v=13">
+  <link rel="apple-touch-icon" href="icon.png?v=14">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
 
@@ -62,7 +62,6 @@
     <span class="text-lg" x-text="toast.icon"></span><span class="font-medium" x-text="toast.msg"></span>
   </div>
 
-  <!-- หน้าจอ Login / Register -->
   <div x-show="!isLoggedIn" x-cloak class="fixed inset-0 z-[60] bg-[#eefcf6] dark:bg-slate-900 flex items-center justify-center p-6">
     <div class="glass-card w-full max-w-sm p-8 text-center shadow-2xl">
       <div class="w-20 h-20 bg-emerald-500 rounded-[1.5rem] flex items-center justify-center mx-auto mb-6 shadow-lg shadow-emerald-200 text-white font-black text-4xl">L</div>
@@ -82,7 +81,6 @@
 
   <div x-show="isLoggedIn" x-cloak class="flex flex-col min-h-screen">
     
-    <!-- เมนูด้านข้าง -->
     <div x-show="isMenuOpen" x-cloak class="fixed inset-0 z-50 flex">
       <div x-show="isMenuOpen" x-transition.opacity.duration.300ms class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" @click="isMenuOpen = false"></div>
       <div x-show="isMenuOpen" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="-translate-x-full" x-transition:enter-end="translate-x-0" x-transition:leave="transition ease-in duration-200" x-transition:leave-start="translate-x-0" x-transition:leave-end="-translate-x-full" class="relative w-72 max-w-[80vw] bg-white dark:bg-slate-900 h-full shadow-2xl flex flex-col">
@@ -111,7 +109,6 @@
       </div>
     </div>
 
-    <!-- Header -->
     <header class="bg-[#eefcf6] p-4 flex justify-between items-center sticky top-0 z-40 pb-2">
       <div class="flex items-center gap-3">
         <button @click="isMenuOpen = true" class="p-2.5 bg-white shadow-sm rounded-2xl text-slate-700 active:scale-95 transition-transform"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 6h16M4 12h16M4 18h16"></path></svg></button>
@@ -128,10 +125,8 @@
       </div>
     </header>
 
-    <!-- Main Content -->
     <main class="p-4 max-w-7xl mx-auto w-full flex-1">
       
-      <!-- หน้าสถิติ -->
       <div x-show="tab === 'สถิติ'" x-cloak x-transition.opacity.duration.300ms class="h-full flex flex-col gap-6 mt-2">
         
         <div class="glass-card p-6 md:p-8">
@@ -217,7 +212,6 @@
         <div class="glass-card p-6 mb-6 md:max-w-md md:mx-auto w-full"><div class="flex items-center gap-2 mb-1"><span class="bg-amber-50 dark:bg-amber-500/20 p-1.5 rounded-lg text-amber-500 dark:text-amber-400 text-sm">🧩</span><h2 class="font-black text-slate-800 text-lg">สัดส่วนสูตรที่เข้าเป้า</h2></div><p class="text-[11px] text-slate-400 mb-4 font-medium">เจาะลึก 75 สูตรหลังบ้านแยกตามหมวดหมู่</p><div class="relative h-[20vh] min-h-[160px] w-full flex justify-center"><canvas id="formulaChart"></canvas></div></div>
       </div>
 
-      <!-- ส่วนอื่นๆ คงเดิม -->
       <div x-show="tab === 'สำนักดัง'" x-cloak x-transition.opacity.duration.300ms class="mt-2 max-w-md mx-auto">
         <div class="flex justify-between items-center mb-5 px-2"><p class="text-[11px] font-bold text-slate-500">อัปเดตข้อมูลแบบ Real-time</p><span class="text-[10px] bg-rose-100 dark:bg-rose-500/20 text-rose-600 dark:text-rose-400 px-2 py-1 rounded-md font-bold">HOT 🔥</span></div>
         <div class="space-y-4">
@@ -308,10 +302,10 @@
   </div>
 
   <script>
-    // 🚀 ตั้งค่าการเชื่อมต่อ Supabase Database
+    // 🚀 เปลี่ยนชื่อตัวแปรจาก supabase เป็น db เพื่อป้องกันการชนกัน (Fix Bug)
     const SUPABASE_URL = 'https://ajmsadhetwrkxyjsnlil.supabase.co';
     const SUPABASE_KEY = 'sb_publishable_1PK-faLuebURLsvCGsnzwQ_zWck_mTc';
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
     
     function lottoApp() {
       return {
@@ -356,11 +350,11 @@
           }
         },
         
-        // 🚀 ดึงสถิติหวยจากตาราง lotto_stats ใน Supabase
+        // 🚀 ดึงสถิติหวยจากตาราง lotto_stats
         async fetchStats() {
           this.loadingStats = true;
           try {
-            const { data, error } = await supabase.from('lotto_stats').select('*');
+            const { data, error } = await db.from('lotto_stats').select('*');
             if (error) throw error;
             
             let front3Counts = {}; let back3Counts = {}; let back2Counts = {};
@@ -395,24 +389,22 @@
           }
         },
 
-        // 🚀 ระบบ Auth ผ่าน Supabase
+        // 🚀 ระบบ Auth
         async handleAuth() { 
           if(!this.authData.username || !this.authData.password) return this.showToast('กรุณากรอกข้อมูลให้ครบ', '⚠️'); 
           this.loading = true; 
-          
-          // Supabase ใช้ email ในการสมัคร เราเลยเอา username มาจำลองเป็น email
           const fakeEmail = this.authData.username.toLowerCase().replace(/[^a-z0-9]/g, '') + '@lottoai.com';
           
           try { 
             if(this.authMode === 'login') { 
-              const { data, error } = await supabase.auth.signInWithPassword({ email: fakeEmail, password: this.authData.password });
+              const { data, error } = await db.auth.signInWithPassword({ email: fakeEmail, password: this.authData.password });
               if (error) throw error;
               
               this.username = this.authData.username; this.isLoggedIn = true; localStorage.setItem('lottoUser', this.username); 
               this.fetchHistory(); this.tab = 'สถิติ'; this.fetchStats(); setTimeout(() => this.renderCharts(), 200); 
               this.showToast('เข้าสู่ระบบสำเร็จ!', '✅'); 
             } else { 
-              const { data, error } = await supabase.auth.signUp({ email: fakeEmail, password: this.authData.password });
+              const { data, error } = await db.auth.signUp({ email: fakeEmail, password: this.authData.password });
               if (error) throw error;
               this.showToast('สมัครสมาชิกสำเร็จ กรุณาเข้าสู่ระบบ', '🎉'); this.authMode = 'login'; this.authData.password = ''; 
             } 
@@ -422,12 +414,12 @@
           this.loading = false; 
         },
 
-        // 🚀 ดึงประวัติจากตาราง lotto_history ใน Supabase
+        // 🚀 ดึงประวัติจากตาราง lotto_history
         async fetchHistory() { 
           if(!this.username) return; 
           this.loadingHistory = true; this.history = []; 
           try { 
-            const { data, error } = await supabase.from('lotto_history').select('*').eq('username', this.username).order('created_at', { ascending: false }).limit(15);
+            const { data, error } = await db.from('lotto_history').select('*').eq('username', this.username).order('created_at', { ascending: false }).limit(15);
             if (error) throw error;
             if (data) {
               this.history = data.map(item => {
@@ -444,7 +436,6 @@
           this.loading = true; this.result = null; this.combos = { two: [], three: [] }; 
           
           try { 
-            // Logic AI จำลอง
             const input = String(this.form.inputNumbers);
             const states = this.form.numStates || {}; let pool = [0,1,2,3,4,5,6,7,8,9];
             let forced = pool.filter(n => states[n] === 'force'); let banned = pool.filter(n => states[n] === 'ban');
@@ -458,9 +449,8 @@
             
             this.result = { prediction: resultPool }; this.combos.two = two; this.combos.three = three;
             
-            // ส่งเข้า Database
             if (this.username) {
-              const { error } = await supabase.from('lotto_history').insert([{
+              const { error } = await db.from('lotto_history').insert([{
                 username: this.username, lottery_type: this.form.lotteryType, input_numbers: input,
                 engine_mode: this.form.engineMode, result: resultPool.join('-'), combos_two: two.join(', '), combos_three: three.join(', ')
               }]);
@@ -470,12 +460,11 @@
           } catch (error) { console.error(error); this.showToast('เชื่อมต่อล้มเหลว', '❌'); } finally { this.loading = false; } 
         },
 
-        // ฟังก์ชันเสริมอื่นๆ
         showFullDates(num, dates) { this.dateModal.num = num; this.dateModal.dates = dates; this.dateModal.show = true; },
         closeDateModal() { this.dateModal.show = false; },
         toggleDarkMode() { this.isDarkMode = !this.isDarkMode; localStorage.setItem('lottoDarkMode', this.isDarkMode); if (this.isDarkMode) { document.documentElement.classList.add('dark'); } else { document.documentElement.classList.remove('dark'); } if(this.tab === 'สถิติ') { this.chartsRendered = false; this.renderCharts(); } },
         requestNotification() { if (!("Notification" in window)) return this.showToast('เบราว์เซอร์ไม่รองรับการแจ้งเตือน', '❌'); Notification.requestPermission().then(permission => { if (permission === "granted") { this.notificationEnabled = true; this.showToast('เปิดแจ้งเตือนหวยออกแล้ว!', '🔔'); new Notification("LOTTOAI PRO", { body: "ระบบพร้อมแจ้งเตือนเมื่อหวยออกแล้วครับ ขอให้โชคดี!", icon: "icon.png" }); } else { this.showToast('คุณปฏิเสธการแจ้งเตือน', '🔕'); } }); },
-        logout() { localStorage.removeItem('lottoUser'); supabase.auth.signOut(); location.reload(); },
+        logout() { localStorage.removeItem('lottoUser'); db.auth.signOut(); location.reload(); },
         setDayName() { const days = ['อาทิตย์', 'จันทร์', 'อังคาร', 'พุธ', 'พฤหัสบดี', 'ศุกร์', 'เสาร์']; this.currentDayName = days[new Date().getDay()]; },
         
         switchTab(t) { 
